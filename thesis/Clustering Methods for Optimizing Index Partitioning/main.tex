@@ -1,0 +1,230 @@
+\documentclass[
+	pdftex,			% Seitenangaben ins pdf schreiben
+	11pt,			% Schriftgröße 11pt
+	a4paper, 		% Layout für DIN A4
+	oneside, 		% Layout für zweiseitigen Druck
+	%fleqn,			% Formeln links eingerückt (default mittig)
+	%BCOR=2cm,		% Binderandkorrektur
+	%DIV=11,			% a little more room on page
+	listof=totoc
+]{scrbook} 
+
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+\usepackage[hyphens]{url}      % URL handling with hyphenation support
+\usepackage[utf8]{inputenc}    % Paket für Eingabekodierung 
+\usepackage[backend=biber,style=alphabetic]{biblatex}
+\addbibresource{literatur.bib}
+% Packages
+\usepackage{csquotes}                           % Empfehlung von biblatex
+
+\usepackage{scrhack}           % KomaScript compatibility hacks (e.g. for listing)
+\usepackage[ngerman, english]{babel}    % Unterstützung für Deutsch (neue Rechtschreibung), English as second language for file in English
+%\usepackage[T1]{fontenc}       % T1-kodierte Schriften, korrekte Trennmuster fuer Worte mit Umlauten
+%\usepackage{lmodern}		   % benutze Latin Modern als Standardschriftart
+%\usepackage{mathptmx}		   % benutze Times als Standardschriftart
+\usepackage{helvet}		       % Serifenlose Schriftart
+\usepackage{ifpdf}		       % Parameter zur Erkennung des Kompilierungstyps
+\usepackage{listings}		   % Code einbinden
+\usepackage{microtype} 		   % unterbindet full boxes durch bessere Anpassung der Schrift 
+\usepackage{bibgerm}		   % Deutscher Biobliographiestil (geralpha)
+\usepackage{amssymb}		   % mathematische Symbole \mathbb{N} z.B.
+\usepackage{nomencl}		   % Abkürzungsverzeichnis
+\usepackage{xspace}		       % Leerzeichenproblem bei Commands lösen
+\usepackage{booktabs}		   % \toprule für Tabellen
+\usepackage{enumitem}
+\usepackage[pdftex]{graphicx}  % Einbinden von Grafiken
+\usepackage[pdftex]{graphicx}  % Einbinden von Grafiken
+\usepackage[pdftex]{color}     % Einbinden von Farben
+\usepackage[pdftex]{xcolor}
+\usepackage[pdftex]{hyperref}  % Einbinden von Verlinkung
+\usepackage{todonotes}		   % \todo{} befehl [disable] zum deaktivieren
+\usepackage{pdfpages} 	       % Einbinden von pdf
+%\usepackage{cite}		       % Für bibtex Parsing unter Windows
+\usepackage{blindtext}
+\usepackage{amsmath}		   % AMS Mathe und Symbolpakete für mehr Möglichkeiten
+%\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{verbatim}          % \begin{comment}, \end{comment}
+
+
+\usepackage{multirow}		   % Zeilen in Tabellen zusammenfassen (http://tug.ctan.org/tex-archive/macros/latex/required/graphics/grfguide.pdf)
+\usepackage{hhline}		       % Horizontale Linien in Tabellen feiner gestalten
+\usepackage{longtable}
+
+\usepackage{graphicx} % for including images
+\usepackage{subcaption} % for subfigures
+\usepackage{wrapfig} % for wrapping figures
+\usepackage{parallel,enumitem}
+
+\usepackage{tabularray}
+\usepackage{setspace}
+
+
+% Unterabbildungen können mit dem subfig-Paket realisiert werden.
+% (z.B. Abb. 1a) (http://tug.ctan.org/tex-archive/macros/latex/contrib/subfig/subfig.pdf)
+\usepackage{subfig}
+
+% Großartige Möglichkeiten um Grafiken direkt in LaTeX zu erzeugen bietet Tikz 
+% (http://mirror.ctan.org/graphics/pgf/base/doc/generic/pgf/pgfmanual.pdf und http://www.statistiker-wg.de/pgf/tutorials.htm)
+\usepackage{tikz}		% 
+\usetikzlibrary[shapes.misc,shapes.geometric,arrows,decorations.pathmorphing,backgrounds,fit,positioning]
+
+\usepackage{draftwatermark}
+\SetWatermarkText{DRAFT}
+
+
+% \setlength{\headheight}{10mm}
+% \setlength{\headsep}{8mm}  
+
+% \setcounter{secnumdepth}{3}           % Globale Tiefe im Dokument
+% \setcounter{tocdepth}{3}              % Tiefe der Numerierung im Inhaltsverzeichnis
+\renewcommand{\topfraction}{0.99}
+\renewcommand{\textfraction}{0.01}
+% Die vorangegangenen Befehle sind noetig, damit grosse Objekte nicht
+% erst auf der letzten Seite erscheinen... (siehe Kopka-Buch S. 170)
+
+\setcounter{topnumber}{9}
+\setcounter{totalnumber}{9}
+% Damit mehr Tabellen/Abbildungen auf eine Seite passen. (S. 170)
+
+\clubpenalty = 10000
+\widowpenalty = 10000
+\displaywidowpenalty = 10000
+
+% Definition von Farben
+\definecolor{darkred}{rgb}{0.5,0,0}
+\definecolor{darkgreen}{rgb}{0,0.3,0}
+\definecolor{darkblue}{rgb}{0,0,0.5}
+\definecolor{black}{rgb}{0.2,0.2,0.2}
+\definecolor{darkbrown}{rgb}{0.28,0.07,0.07}
+
+% Einstellungs für Abkürzungsverzeichnis
+\let\abk\nomenclature					% Befehl umbenennen in abk
+\renewcommand{\nomname}{Abkürzungsverzeichnis}
+\setlength{\nomlabelwidth}{.20\hsize}			% Punkte zw. Abkürzung und Erklärung
+\renewcommand{\nomlabel}[1]{#1 \dotfill}
+\setlength{\nomitemsep}{-\parsep}			% Zeilenabstände verkleinern
+\makenomenclature
+
+% Zeilenabstand für Inhalte
+\newcommand{\contentspacing}{\setstretch{1.1}}
+% \newcommand{\contentspacing}{\singlespacing}
+
+%%%%%%%%%%%%%%%%%%%% HIER DATEN EINTRAGEN %%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%% CHANGE DATA HERE %%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\bitAuthor}{Maximilian Verwiebe}
+\newcommand{\bitTitle}{Clustering Methods for Optimizing Index Partitioning}
+\newcommand{\bitType}{Bachelor Thesis}
+\newcommand{\bitZweitbetreuer}{Zweitbetreuer}
+% 
+% Es ist EIN Zweitbetreuer anzugeben!
+% bspw.
+% Betreuer in der Firma
+% M.Sc. Melanie Windrich
+% ...
+\newcommand{\bitAbgabedatum}{\today}
+\newcommand{\bitKeywords}{Some key words}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\hypersetup{
+	colorlinks=false,       % Anzeigen der Links in Farbe
+	pdftitle={\bitTitle},
+	pdfauthor={\bitAuthor},
+	pdfsubject={\bitType},
+	pdfkeywords={\bitKeywords}, 
+	plainpages=false,	    % Notiz, dass Duplikate ignoriert werden
+	hypertexnames=false,    % Links im Index nicht aktiviert
+%	bookmarks=true,        	% Anzeigen oder Verstecken der Bookmarks 
+	pdffitwindow=true,      % Setzen von initialen Parametern fr das Anzeigen des PDF-Dokumentes
+	linkcolor=black,        % Colorierung von internen Links (Abschnitten, Seiten, etc.),
+	citecolor=darkblue,     % Colorierung der Links auf Referenzen
+	urlcolor=darkgreen,     % Colorierung der Links auf WWW-Seiten, z.B. \href{http://www.ctan.org}{CTAN}
+	menucolor=darkbrown,    % Colorierung der Links im Men
+	filecolor=magenta       % Colorierung der Links auf Dateien, z.B. \href{manual.pdf}{here}
+}
+
+\pdfcompresslevel=9
+\DeclareGraphicsExtensions{.pdf, .png, .jpg, .mps}
+
+% --------------------------- Definitionen -------------------------------
+\renewcommand{\lstlistingname}{Listing}
+\renewcommand{\lstlistlistingname}{Quellcodeverzeichnis}
+
+\lstset{%
+	language=java,
+	commentstyle=\color{darkgreen},
+	stringstyle=\color{darkred},
+	basicstyle=\footnotesize\ttfamily,
+	tabsize=2,
+	numbers=left,
+	numberstyle=\tiny,
+	breakautoindent  = true,
+	breakindent      = 2em,
+	breaklines       = true,
+% 	prebreak         = \raisebox{-.8ex}[0ex][0ex]{\Righttorque},
+	showspaces=false, 	% Keine Leerzeichensymbole
+	showtabs=false, 	% Keine Tabsymbole
+	showstringspaces=false,	% Leerzeichen in Strings
+	frame=lines,
+	captionpos=b
+}
+
+\input{commands}     		% Nutze eigene Commands
+\input{shortcuts}
+
+% ---------------------------Dokument--------------------------
+\begin{document}
+\pagenumbering{Roman} 		% römische Seitenzahlen mittig
+\pagestyle{plain}		% Standard Seitenstil 
+
+% ---------------------- Dokument jetzt wirklich --------------------------
+% Titelblatt
+\input{title}			% Deckblatt
+%\listoftodos 			% Zeige Todoanweisungen auf 2. Seite
+%\clearpage{\pagestyle{empty}\cleardoublepage}
+ 
+% ---------------------------Abstract-------------------------------------
+\contentspacing
+% \input{Content/0-kurzfassung}		% Abstract deutsch
+%\clearpage{\pagestyle{empty}\cleardoublepage}
+\input{Content/0-abstract}	% Abstract englisch
+%\clearpage{\pagestyle{empty}\cleardoublepage}
+
+% ---------------------------Selbstständigkeits-Erklärung---------------------------------------
+\input{statement-ENG}  % For English Version change to statement-ENG
+
+% ---------------------------Inhaltsverzeichnisse--------------------------
+\singlespacing
+\tableofcontents		% Inhaltsverzeichnis
+% \addcontentsline{toc}{chapter}{Inhaltsverzeichnis}
+\addtocontents{toc}{\protect\addcontentsline{toc}{chapter}{Contents}}
+\contentspacing
+
+% ---------------------------Hauptteil--------------------------------------
+\mainmatter			% Beginn des Hauptteils
+\pagenumbering{arabic}		% arabische Seitenzahlen mittig 
+\setcounter{page}{1}		% Zurücksetzen des Seitenzählers
+\input{Content/1-chapter}		% Kapitel 1
+\input{Content/2-chapter}		% Kapitel 2
+\input{Content/3-chapter}		% Kapitel 3
+\input{Content/4-chapter}		% Kapitel 4
+\input{Content/5-chapter}		% Kapitel 5
+\input{Content/6-chapter}		% Kapitel 6
+\input{Content/7-chapter}		% Kapitel 7
+\input{Content/8-chapter}		% Kapitel 8
+\input{Content/9-chapter}		% Kapitel 9
+
+
+% ---------------------------Verzeichnisse----------------------------------
+\singlespacing
+\nocite{*}               % Include all references from the bib file
+\printbibliography[title={Bibliography}]
+%\printnomenclature		% Abkürzungsverzeichnis
+%\listoffigures			% Abbildungsverzeichnis
+%\listoftables			% Tabellenverzeichnis
+%\lstlistoflistings		% Codeverzeichnis
+
+
+\end{document}

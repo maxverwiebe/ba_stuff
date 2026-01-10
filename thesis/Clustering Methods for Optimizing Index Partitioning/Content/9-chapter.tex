@@ -1,0 +1,23 @@
+\chapter{Summary and Outlook}
+In this final chapter, we summarize the key findings of this thesis, discuss its limitations, and outline potential directions for future work.
+\section{Key Findings}
+The optimization procedure presented in this thesis follows the tradition of using clustering for R-Tree constructions \cite{Brakatsoulas2002}, but goes beyond it by taking strict capacity limits into account for direct mapping of clusters to data pages (leaves).
+This thesis has shown that clustering methods, combined with an optimization algorithm, can significantly improve the efficiency of R-Tree index partitioning.
+By first applying $k$-Means clustering and then refining the results with a size-constraints-aware post-processing algorithm, we were able to create partitions that satisfy leaf constraints and reduce bounding box overlap. The experimental evaluation over 1080 test cases demonstrated that the optimized clustering approach improves query performance in the majority of scenarios, with a median relative gain of approximately 8\%.
+Particularly in two and very high dimensions, and when using the linear split heuristic, the optimization achieved great improvements.
+
+\section{Limitations}
+Despite the overall positive results, there are some negative cases. In some parameter environments, especially when it comes to uniform distributions, medium-dimensional data (d=5 or d=10) and advanced R-Tree variants such as R*, the optimization provided only marginal or even negative improvements. This shows that the method is not universally beneficial for every use case and its effectiveness depends on data distribution, dimensionality, and index configuration. Also, the approach was only tested on synthetic datasets. Performance on real-world data may differ.
+
+\section{Future Work}
+
+\paragraph{Testing} It is worth testing the work of this thesis on more data. We have already looked at 1080 test cases, but there are more possibilities to evaluate the usefulness.
+For example, it could be useful to simply expand the synthetic test data sets to test very high dimensionalities. 
+The highest dimension is currently 20, but it might be worthwhile to test dimensions from 100 to 500 and above, as these dimensions are particularly relevant in current topics such as machine learning.
+
+\paragraph{Bulk-Loading}
+It should also be checked whether the algorithm can somehow be combined with bulk loading strategies of the R-Tree. Currently, the two mechanisms are not compatible with each other.
+
+\paragraph{Intelligent Procedure}
+Based on the tests and derived learned rules, an intelligent procedure could be developed that automatically decides whether an optimized index or a baseline index should be built on the input dataset.
+Recent work such as PLATON \cite{YangSIGMOD2023} shows that learning-based partitioning strategies offer further potential. Combining our approach with such methods could be an interesting field for future research.

@@ -1,0 +1,786 @@
+\chapter{Evaluation}
+In this chapter, we present the evaluation of the proposed clustering optimization method for R-Tree index partitioning.
+We use the pipeline described in Section 7 to build both a baseline R-Tree index and an optimized R-Tree index using the proposed method for a variety of datasets and configurations.
+\section{Research Questions and Setup}
+To test the effectiveness of the postprocessing clustering algorithm, we use the pipeline described in Section 7.
+The goal is to evaluate the impact of the optimized clustering on the R-Tree index partitioning.
+\newline
+Mainly, this thesis addresses the following research questions:
+\begin{enumerate}[label=\textbf{RQ\arabic*}]
+  \item Does \(I^{\mathrm{opt}}\) reduce node visits compared to \(I^{\mathrm{base}}\)? (Query efficiency)
+  \item Which parameters increase or decrease the effect? (When is it beneficial?)
+  \item How does \(I^{\mathrm{opt}}\) compare to STR bulk loading in index construction? (Build time)
+\end{enumerate}
+... with $I^{\mathrm{base}}$ being the baseline index and an optimized index $I^{\mathrm{opt}}$.
+\newline\newline
+We will start with RQ1 and RQ2. We will look at the query efficiency of the optimized index against the baseline index and the most important features.
+\newline\newline
+A testcase is defined as a combination of parameters defined in Table \ref{tab:testcase_params_normal} that will be used to generate the data points and the R-Tree index.
+\begin{table}[h]
+\centering
+\begin{tabular}{ll}
+\hline
+\textbf{Factor} & \textbf{Levels} \\
+\hline
+Number of distributions $k$ & \{1, 2, 5\} \\
+Number of points $N$ & \{5{,}000, 10{,}000, 20{,}000, 50{,}000, 100{,}000, 200{,}000\} \\
+Data distribution & \{\textsc{gaussian}, \textsc{uniform}\} \\
+Noise scale & \{0.1, 0.2, 0.4, 0.7\} (Gaussian only) \\
+Dimensions $d$ & \{2, 5, 10, 20\} \\
+R-Tree variant & \{0 (linear), 1 (quadratic), 2 (R*)\} \\
+Min--max points per distribution & \{(0.005, 0.01)\} of $N$ \\
+\hline
+Total combinations & \textbf{1080} \\
+\hline
+\end{tabular}
+\caption{Full factorial design with conditional noise (only for Gaussian).}
+\label{tab:testcase_params_normal}
+\end{table}
+\newline
+Since noise applies only to the Gaussian setting,
+the total number of configurations and therefore test cases is
+$3\times6\times(1\times4 + 1\times1)\times4\times3\times1 = 1080$.
+
+\subsection{Test Case}
+Let a testcase be fixed, with dataset $X=\{x_1,\dots,x_N\}\subset\mathbb{R}^d$ and two indices built on the same $X$:
+a baseline index $I^{\mathrm{base}}$ and an optimized index $I^{\mathrm{opt}}$ (capacity-aware clustering).
+\newline\newline
+Table \ref{tab:example_testcase} shows an example configuration for a test case.
+\begin{table}[H]
+\centering
+\begin{tabular}{ll}
+\hline
+\textbf{Parameter} & \textbf{Value} \\
+\hline
+Number of distributions $k$ & 1 \\
+Number of Points $N$ & 5,000 \\
+Distribution & \textsc{gaussian} \\
+Noise Scale & 0.1 \\
+Dimensions $d$ & 2 \\
+R-Tree Variant & Linear (0) \\
+Min--Max Points & (0.005, 0.01) of $N$ = 25--50 points \\
+\hline
+\end{tabular}
+\caption{Example test case configuration.}
+\label{tab:example_testcase}
+\end{table}
+
+\subsubsection{Dataset Generation}
+The very first step is to generate the dataset for each test case.
+The datasets' properties depend on the parameters defined in Table \ref{tab:testcase_params}.
+We generate the data for different dimensions $d$.
+The data points are generated in two different ways:
+\begin{itemize}
+    \item \textbf{Gaussian distribution:} The data points are generated from a Gaussian distribution with a given number of clusters $k$.
+    Each cluster is centered at a random point in the $d$-dimensional space, and the points are generated around this center with a given noise scale.
+    The noise scale is a parameter that controls the spread of the points around the center.
+    \item \textbf{Uniform distribution:} The data points are generated uniformly in the $d$-dimensional space.
+    The points are generated in a hypercube.
+\end{itemize}
+Figure \ref{fig:gaussian_vs_uniform_dists} shows an example of a dataset with 2 distributions in dimension 2 with Gaussian and uniform distributions.
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.7\textwidth]{Images/gaussian_vs_uniform.png}
+    \caption{Datasets with 2 distributions in dimension 2 with Gaussian (left) and uniform (right) distributions.}
+    \label{fig:gaussian_vs_uniform_dists}
+\end{figure}
+
+\subsubsection{Index Construction}
+We build two R-Tree indices with the same $MIN\_POINTS$ and $MAX\_POINTS$ for each test case:
+\begin{itemize}
+    \item \textbf{Baseline index} $I^{\mathrm{base}}$: This index is built by inserting the points of $X$ into an R-Tree without any modifications.
+    \item \textbf{Optimized index} $I^{\mathrm{opt}}$: This index is built using the new cluster assignments from the postprocessing algorithm as described in Section \ref{sec:r_tree_construction_optimized}.
+\end{itemize}   
+
+\subsubsection{Queries and Evaluation Metrics}
+We test each R-Tree performance by counting the number of nodes visited during a kNN query.
+For each test case we draw $m=1000$ i.i.d.\ queries $q_1,\dots,q_m \sim \mathcal{P}$, where $\mathcal{P}$ equals the generative distribution of $X$. We set $k=3$ and evaluate both indices on the same query set.
+\newline
+So in the end we execute the same query twice, once on the baseline index $I^{\mathrm{base}}$ and once on the optimized index $I^{\mathrm{opt}}$.
+The results are then compared to evaluate the impact of the optimized clustering on the R-Tree index partitioning.
+\newline\newline
+The querying of $q_j$ on both indices reduces variance and isolates the effect of the optimized partitioning.
+\newline\newline
+Table \ref{tab:query_results} shows a sample of the results from our 1000 queries for the example test case.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|r|c|c|}
+\hline
+\textbf{Query Number} $j$ & \textbf{$V_{I^{\mathrm{base}}}(q_j)$} & \textbf{$V_{I^{\mathrm{opt}}}(q_j)$} \\
+\hline
+1 & 47 & 32 \\
+2 & 53 & 41 \\
+3 & 65 & 48 \\
+4 & 58 & 39 \\
+5 & 72 & 59 \\
+6 & 49 & 42 \\
+7 & 61 & 45 \\
+8 & 55 & 38 \\
+9 & 63 & 52 \\
+10 & 51 & 40 \\
+\vdots & \vdots & \vdots \\
+1000 & 59 & 43 \\
+\hline
+\end{tabular}
+\caption{Sample of query results showing node visits for both indices (out of 1000 total queries).}
+\label{tab:query_results}
+\end{table}
+
+\subsubsection{Evaluation}
+The evaluation is done by comparing the number of visited nodes for each query on both indices.
+This lets us define simple metrics to compare the two indices:
+\newline\newline
+We analyze the paired differences
+\[
+D(q_j) := V_{I^{\mathrm{opt}}}(q_j) - V_{I^{\mathrm{base}}}(q_j).
+\]
+
+Table \ref{tab:query_results1} shows a sample of the results from our 1000 queries for the example test case, including the difference $D(q_j)$.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|r|c|c|c|}
+\hline
+\textbf{Query Number} $j$ & \textbf{$V_{I^{\mathrm{base}}}(q_j)$} & \textbf{$V_{I^{\mathrm{opt}}}(q_j)$} & \textbf{$D(q_j)$} \\
+\hline
+1 & 47 & 32 & -15 \\
+2 & 53 & 41 & -12 \\
+3 & 65 & 48 & -17 \\
+4 & 58 & 39 & -19 \\
+5 & 72 & 59 & -13 \\
+6 & 49 & 42 & -7 \\
+7 & 61 & 45 & -16 \\
+8 & 55 & 38 & -17 \\
+9 & 63 & 52 & -11 \\
+10 & 51 & 40 & -11 \\
+\vdots & \vdots & \vdots & \vdots \\
+1000 & 59 & 43 & -16 \\
+\hline
+\end{tabular}
+\caption{Sample of query results showing node visits for both indices and the difference $D(q_j)$ (out of 1000 total queries).}
+\label{tab:query_results1}
+\end{table}
+
+When $D(q_j)<0$, it indicates that the optimized index visited fewer nodes for query $q_j$.
+
+Furthermore, we define the following metrics to summarize the performance across all queries for a test case:
+
+\begin{itemize}
+\item \textbf{Mean node visits} $\overline{V}_{I} = \frac{1}{m}\sum_{j=1}^m V_{I}(q_j)$ measures the average number of nodes visited in index $I$.
+\item \textbf{Mean difference} $\overline{D} = \frac{1}{m}\sum_{j=1}^m D(q_j)$ measures the average absolute improvement in node visits (optimized vs baseline).
+\item \textbf{Median difference} $\widetilde{D} = \text{median}(\{D(q_j)\}_{j=1}^m)$ is robust against outliers.
+\item \textbf{Relative improvement} $\text{relGain}[\%] = -\frac{\overline{D}}{\overline{V}_{I^{\mathrm{base}}}}\cdot 100$ expresses the percentage reduction in node visits.
+\end{itemize}
+
+A negative $\overline{D}$ and positive relGain indicate that our optimized index requires fewer node visits on average, demonstrating improved efficiency.
+
+\section{Overall Results (RQ1)}
+As shown in Table \ref{tab:testcase_params_normal}, we have a total of 1080 test cases.
+We analyze the results across all test cases to see if there are any patterns or trends.
+\newline\newline
+Table \ref{tab:example_testcases} shows a small subset of the 1080 test cases used in our evaluation. Each test case represents a unique combination of the parameters described in Table \ref{tab:testcase_params_normal}.
+
+\begin{table}[htbp]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccccccc}
+\hline
+\textbf{Test ID} & \textbf{Clusters} & \textbf{Points} & \textbf{Distribution} & \textbf{Noise Scale} & \textbf{Dimensions} & \textbf{R-Tree Variant} & \textbf{Min-Max (Rel.)} & \textbf{Min-Max (Abs.)} \\
+\hline
+case1 & 1 & 5,000 & gaussian & 0.1 & 2 & Linear & (0.005, 0.01) & 25.0 - 50.0 \\
+case10 & 1 & 5,000 & gaussian & 0.2 & 2 & RStar & (0.005, 0.01) & 25.0 - 50.0 \\
+case100 & 1 & 20,000 & gaussian & 0.7 & 10 & Linear & (0.005, 0.01) & 100.0 - 200.0 \\
+case101 & 1 & 20,000 & gaussian & 0.1 & 10 & Quadratic & (0.005, 0.01) & 100.0 - 200.0 \\
+case102 & 1 & 20,000 & gaussian & 0.2 & 10 & Quadratic & (0.005, 0.01) & 100.0 - 200.0 \\
+case103 & 1 & 20,000 & gaussian & 0.4 & 10 & Quadratic & (0.005, 0.01) & 100.0 - 200.0 \\
+case104 & 1 & 20,000 & gaussian & 0.7 & 10 & Quadratic & (0.005, 0.01) & 100.0 - 200.0 \\
+case105 & 1 & 20,000 & gaussian & 0.1 & 10 & RStar & (0.005, 0.01) & 100.0 - 200.0 \\
+case106 & 1 & 20,000 & gaussian & 0.2 & 10 & RStar & (0.005, 0.01) & 100.0 - 200.0 \\
+case107 & 1 & 20,000 & gaussian & 0.4 & 10 & RStar & (0.005, 0.01) & 100.0 - 200.0 \\
+\hline
+\multicolumn{9}{c}{... (890 more test cases)} \\
+\hline
+\end{tabular}%
+}
+\caption{Sample of test cases from the 1080 total configurations.}
+\label{tab:example_testcases_ye}
+\end{table}
+
+Table \ref{tab:example_testcases_ye} shows only 10 examples from our full test suite of 1080 cases. Each case represents a specific configuration of parameters that could influence R-Tree performance. By systematically evaluating all these configurations, we can identify patterns in the performance improvements offered by our capacity-aware clustering approach.
+
+\begin{table}[htbp]
+\centering
+\resizebox{\textwidth}{!}{
+\begin{tabular}{lcccccccccccccc}
+\hline
+\textbf{Test ID} & \textbf{Clusters} & \textbf{Points} & \textbf{Distribution} & \textbf{Noise Scale} & \textbf{Dimensions} & \textbf{R-Tree Variant} & \textbf{Min-Max (Rel.)} & \textbf{Min-Max (Abs.)} & \textbf{$\overline{V}_{I^{\mathrm{base}}}$} & \textbf{$\overline{V}_{I^{\mathrm{opt}}}$} & \textbf{$\overline{D}$} & \textbf{$\widetilde{D}$} & \textbf{relGain[\%]} & \textbf{SR[\%]} \\
+\hline
+case1 & 1 & 5,000 & gaussian & 0.1 & 2 & Linear & (0.005, 0.01) & 25.0 - 50.0 & ? & ? & ? & ? & ? & ? \\
+case10 & 1 & 5,000 & gaussian & 0.2 & 2 & RStar & (0.005, 0.01) & 25.0 - 50.0 & ? & ? & ? & ? & ? & ? \\
+case100 & 1 & 20,000 & gaussian & 0.7 & 10 & Linear & (0.005, 0.01) & 100.0 - 200.0 & ? & ? & ? & ? & ? & ? \\
+case101 & 1 & 20,000 & gaussian & 0.1 & 10 & Quadratic & (0.005, 0.01) & 100.0 - 200.0 & ? & ? & ? & ? & ? & ? \\
+case102 & 1 & 20,000 & gaussian & 0.2 & 10 & Quadratic & (0.005, 0.01) & 100.0 - 200.0 & ? & ? & ? & ? & ? & ? \\
+case103 & 1 & 20,000 & gaussian & 0.4 & 10 & Quadratic & (0.005, 0.01) & 100.0 - 200.0 & ? & ? & ? & ? & ? & ? \\
+case104 & 1 & 20,000 & gaussian & 0.7 & 10 & Quadratic & (0.005, 0.01) & 100.0 - 200.0 & ? & ? & ? & ? & ? & ? \\
+case105 & 1 & 20,000 & gaussian & 0.1 & 10 & RStar & (0.005, 0.01) & 100.0 - 200.0 & ? & ? & ? & ? & ? & ? \\
+case106 & 1 & 20,000 & gaussian & 0.2 & 10 & RStar & (0.005, 0.01) & 100.0 - 200.0 & ? & ? & ? & ? & ? & ? \\
+case107 & 1 & 20,000 & gaussian & 0.4 & 10 & RStar & (0.005, 0.01) & 100.0 - 200.0 & ? & ? & ? & ? & ? & ? \\
+\hline
+\multicolumn{15}{c}{... (890 more test cases)} \\
+\hline
+\end{tabular}%
+}
+\caption{Sample of test cases from the 1080 total configurations with performance metrics.}
+\label{tab:example_testcases_metrics}
+\end{table}
+
+Table \ref{tab:example_testcases_metrics} extends the previous table by including performance metrics for each test case. The metrics include average node visits for both the baseline and optimized indices, mean and median differences in node visits, relative gain percentage, and success rate. These metrics provide a comprehensive view of how the optimized clustering approach impacts R-Tree performance across various configurations.
+
+\subsection{Results}
+Now we are looking at the results of the evaluation across all test cases.
+It's clear to see that in the majority of the test cases, the optimized index has fewer visited nodes for queries than the non-optimized index.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Images/evaluation/boxplott.png}
+    \caption{Distribution of node visits for baseline index and optimized index. The optimized index shows a lower central trend with a shorter upper tail. In comparison, the baseline index has a significantly higher max number of visited nodes (a longer tail). The interval of node visit counts is therefore larger for the baseline index than for the optimized index.}
+    \label{fig:rq1_boxplott}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{Images/evaluation/dsitribution_of_rel_gain.png}
+    \caption{Distribution (histogram) of relative gain among all test cases. This histogram shows that the most test cases have a relative improvement in the interval $[-35, 70]$.It also shows the extent of negative outliers. There are a few very rare cases where optimization has led to a negative improvement of up to 200\%. However, these outliers are very rare in comparison to all other test cases.}
+    \label{fig:rq1_distribution_of_rel_gain}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Images/evaluation/distribution_quantile.png}
+    \caption{This figure shows the relative improvement of the optimization per test case. The test cases are sorted by relative improvement size. In the majority of cases, the optimization has a positive impact. The median of relative improvement is $\approx 8.3\%$, while the mean is $\approx 7.7\%$. This chart also shows a very high variance.}
+    \label{fig:rq1_distribution_quantiles}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Images/evaluation/ecdf.png}
+    \caption{Empirical distribution function (ECDF) of relative gains across all test cases. About 60--65\% of cases show a positive gain, with a median improvement of $\approx$8\%. The prominent left tail indicates a few large negative outliers. This shows the variability and risk of the optimization on some test cases despite the overall positive effect.}
+    \label{fig:rq1_ecdf}
+\end{figure}
+
+Figure \ref{fig:rq1_distribution_quantiles} (sorted relative improvement) and Figure 
+\ref{fig:rq1_ecdf} (ECDF) shows that using bounding boxes yields a median relative gain of 
+$\approx 8.3\%$ and a mean gain of $\approx 7.7\%$ across all test cases. 
+The ECDF at $=0$ indicates that in 60--65\% of cases the optimized index outperforms the baseline.
+\newline
+\newline
+The histogram in Figure \ref{fig:rq1_distribution_of_rel_gain} is asymmetrically distributed. 
+Many cases show small to moderate gains (see the steep ECDF between 0--30\%). 
+A long left tail shows a few large drops (down to $-230\%$). 
+Because of these rare outliers with a relative gain of $-230\%$, the mean is below the median.
+On the positive side, some cases reach gains up to \textbf{+80\%}.
+\newline\newline
+In Figure \ref{fig:rq1_boxplott}, we see that the optimized index has a lower median and a shorter upper tail.
+The baseline index has a significantly higher maximum number of visited nodes (a longer tail).
+The interval of node visit counts is therefore larger for the baseline index than for the optimized index.
+\newline\newline
+To give a brief interim conclusion, optimizing a spatial index with our clustering optimization algorithm is beneficial in the typical case but not universally beneficial. 
+The overall effect is positive, but for a small number of cases, the performance can degrade significantly.
+
+\section{Factor Analysis (RQ2)}
+As the next step, we analyze the influence of different parameters on the performance of the optimized clustering algorithm.
+We are looking at the different features defined in Table 8.1.
+\subsubsection{Dimensionality}
+\begin{table}[htbp]
+\centering
+\begin{tabular}{rrrrr}
+\hline
+\textbf{$d$} & \textbf{Cases} & \textbf{Win rate [\%]} & \textbf{Mean rel. gain [\%]} & \textbf{Mean diff} \\
+\hline
+2  & 270 & 73.0 & 27.869 & -4.171 \\
+5  & 270 & 47.0 & -3.263 & -3.324 \\
+10 & 270 & 55.9 & -2.168 & -2.919 \\
+20 & 270 & 74.4 & 8.460  & -4.015 \\
+\hline
+\end{tabular}
+\caption{Performance by dimensionality: number of cases, win rate (share of test cases with fewer node visits), mean relative gain, and mean absolute difference.
+Mean diff is the average of \(\bar{D}\) across all test cases in that dimension group.}
+\label{tab:rq2_dim_analysis}
+\end{table}
+
+
+\begin{wrapfigure}{r}{0.5\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{Images/evaluation/dimension_winrate.png}
+    \caption{Win rates across different dimensions.}
+    \label{fig:rq2_dim_winrate}
+\end{wrapfigure}
+
+Across dimensions, the effect is not uniform (Table~\ref{tab:rq2_dim_analysis} and Figure~\ref{fig:rq2_dim_winrate}). 
+In $d=2$, the method wins in most cases (win rate $\approx 73\%$) with the largest average relative gain ($\approx 27.9\%$). 
+In $d=20$, the win rate is similarly high ($\approx 74\%$) but the average gain is smaller ($\approx 8.5\%$). 
+For $d=5$ and $d=10$, the picture is mixed: win rates around $47$--$56\%$, and small average effects that can turn negative on average. 
+Overall, lower and very high dimensions benefit more often, while mid-range dimensions show many small wins and a few larger losses.
+\newline\newline
+We now look at the cases where the optimization has the most negative impact regarding the dimensionality.
+For this we filter the results for negative relative gains.
+
+\begin{wrapfigure}{r}{0.5\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{Images/evaluation/neg_dimensions.png}
+    \caption{Distribution of negative relative improvement ($\mathrm{rel\_gain\_\%}$) according to dimensionality $d$.}
+    \label{fig:rq2_dim_neg_distribution}
+\end{wrapfigure}
+
+The optimization algorithm seems to generate unfavorable effects primarily in medium dimensions (d=5/10), where the largest losses and greatest dispersion occur. In 2D, the effects are small, while in high dimensionality, the medians approach 0 \% again (Figure \ref{fig:rq2_dim_neg_distribution}).
+
+\subsubsection{Number of Points / Points per Distribution}
+This parameter controls the number of data points in the dataset to be indexed.
+\begin{table}[H]
+\centering
+\begin{tabular}{rrrrr}
+\hline
+\textbf{Total Points} & \textbf{Cases} & \textbf{Win rate [\%]} & \textbf{Mean rel. gain [\%]} & \textbf{Mean diff} \\
+\hline
+5,000   & 180 & 68.9 & 5.336  & -1.452 \\
+10,000  & 180 & 66.7 & 7.192  & -1.976 \\
+20,000  & 180 & 66.7 & 11.012 & -3.183 \\
+50,000  & 180 & 61.7 & 10.352 & -4.159 \\
+100,000 & 180 & 59.4 & 9.321  & -5.118 \\
+200,000 & 180 & 52.2 & 3.134  & -5.757 \\
+\hline
+\end{tabular}
+\caption{Performance by number of points: number of cases, win rate (share of test cases with fewer node visits), mean relative gain, and mean absolute difference.}
+\label{tab:rq2_points_analysis}
+\end{table}
+The number of points $N$ in the dataset influences the index size and structure.
+As the number of points increases, the index becomes larger and potentially more complex, which can impact query performance.
+The results in Table \ref{tab:rq2_points_analysis} show that smaller datasets (5,000 to 20,000 points) benefit more from the optimization, with win rates around 67--69\% and average relative gains up to 11\%.
+The more points are added (50,000 to 200,000), the more the performance tends to degrade, with win rates dropping to 52\%.
+\newline\newline
+We can also take a look at the number of points per distribution in the dataset. Figure \ref{fig:gaussian_vs_uniform_dists} shows such a distribution with a number of distributions of 2 and 1000 points per distribution.
+This is calculated by dividing the total number of points $N$ by the number of distributions $k$: $N / k$ = Points per distribution.
+\begin{table}[H]
+\centering
+\begin{tabular}{rrrrr}
+\hline
+\textbf{Points per distribution} & \textbf{Cases} & \textbf{Win rate [\%]} & \textbf{Mean rel. gain [\%]} & \textbf{Mean diff} \\
+\hline
+1,000   & 60  & 76.7 & 6.074  & -1.737 \\
+2,000   & 60  & 80.0 & 7.015  & -1.730 \\
+2,500   & 60  & 71.7 & 6.853  & -1.265 \\
+4,000   & 60  & 80.0 & 11.548 & -2.861 \\
+5,000   & 120 & 62.5 & 5.402  & -1.738 \\
+10,000  & 180 & 64.4 & 9.256  & -2.852 \\
+20,000  & 120 & 60.8 & 12.252 & -4.779 \\
+25,000  & 60  & 63.3 & 12.201 & -4.539 \\
+40,000  & 60  & 58.3 & 8.616  & -6.960 \\
+50,000  & 120 & 52.5 & 9.246  & -4.744 \\
+100,000 & 120 & 50.8 & 3.311  & -5.106 \\
+200,000 & 60  & 50.0 & -1.454 & -4.549 \\
+\hline
+\end{tabular}
+\caption{Performance by points per distribution: number of cases, win rate (share of test cases with fewer node visits), mean relative gain, and mean absolute difference.}
+\label{tab:rq2_points_per_cluster_analysis}
+\end{table}
+
+In Table \ref{tab:rq2_points_per_cluster_analysis} we can clearly see that the fewer points per distribution, the better the performance in terms of win rate.
+
+\paragraph{Combination with dimensions}
+We have already seen that the number of points and the number of dimensions have a significant impact on the performance of the optimized clustering algorithm.
+But when we look at the combination of these two parameters in Figure \ref{fig:dimensions_points_heatmaps}, we can see that the effect is even more significant.
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Images/evaluation/heatmap_dimension_total_points.png}
+        \caption{Relative improvement in relation with the number of total points and dimensions.}
+        \label{fig:helly1}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Images/evaluation/heatmap_dimension_points_per_distri.png}
+        \caption{Relative improvement in relation with the number of points per distribution and dimensions.}
+        \label{fig:helly2}
+    \end{subfigure}
+    \caption{Heatmaps showing the relative improvement in relation with the number of points and dimensions. The left heatmap (a) shows the relation with total points, while the right heatmap (b) shows the relation with points per distribution. Both heatmaps indicate that lower dimensions (2D) consistently benefit from optimization, while mid-range dimensions (5D, 10D) show mixed results, especially as the number of points increases. High dimensions (20D) again show more consistent positive gains, particularly with fewer points per distribution.}
+    \label{fig:dimensions_points_heatmaps}
+\end{figure}
+
+The heatmaps in Figure \ref{fig:dimensions_points_heatmaps} illustrate the complex interplay between dimensionality and point distribution on optimization performance.
+In lower dimensions (2D), the optimization consistently achieves positive results across varying point counts, indicating that spatial relationships are more effectively captured in simpler spaces.
+
+\subsubsection{Distribution Type and Noise}
+\begin{table}[H]
+\centering
+\begin{tabular}{rrrrr}
+\hline
+\textbf{Distribution} & \textbf{Cases} & \textbf{Win rate [\%]} & \textbf{Mean rel. gain [\%]} & \textbf{Mean diff} \\
+\hline
+Gaussian & 864 & 66.0 & 10.215 & -3.484 \\
+Uniform  & 216 & 49.1 & -2.237 & -4.102 \\
+\hline
+\end{tabular}
+\caption{Performance by distribution type: number of cases, win rate (share of test cases with fewer node visits), mean relative gain, and mean absolute difference.}
+\label{tab:rq2_rtree_analysis_dist_table}
+\end{table}
+
+In Table \ref{tab:rq2_rtree_analysis_dist_table} it is clear to see that Gaussian distributions benefit significantly more from the optimization than uniform distributions. Gaussian datasets achieve a win rate of 66\% with an average relative gain of 10.2\%, while uniform distributions show a mixed performance with only 49\% win rate and a slight negative average gain of -2.2\%. This suggests that the clustering optimization is more effective when data exhibits natural clustering patterns rather than uniform spread.
+\paragraph{Noise scale}
+Noise scale is a parameter that controls the spread of the points around the center in a Gaussian distribution.
+It is only applied to Gaussian distributions and has no effect on uniform distributions.
+Therefore a noise scale of 0.0 implies that it is a uniform distribution.
+\begin{table}[H]
+\centering
+\begin{tabular}{rrrrr}
+\hline
+\textbf{Noise Scale} & \textbf{Cases} & \textbf{Win rate [\%]} & \textbf{Mean rel. gain [\%]} & \textbf{Mean diff} \\
+\hline
+0.0 & 216 & 49.1 & -2.237 & -4.102 \\
+0.1 & 216 & 64.4 & 9.530  & -3.099 \\
+0.3 & 216 & 65.7 & 10.208 & -3.544 \\
+0.5 & 216 & 68.1 & 10.026 & -3.624 \\
+0.7 & 216 & 65.7 & 11.096 & -3.668 \\
+\hline
+\end{tabular}
+\caption{Performance by noise scale: number of cases, win rate (share of test cases with fewer node visits), mean relative gain, and mean absolute difference. Note that noise scale 0.0 corresponds to uniform distribution.}
+\label{tab:rq2_noise_analysis}
+\end{table}
+
+The noise scale analysis results in Table \ref{tab:rq2_noise_analysis} reveal an interesting pattern. When noise scale is 0.0 (uniform distribution), the optimization performs poorly with only 49.1\% win rate and negative average gain, as discussed above.
+There is no clear difference in performance between the various noise scales (0.1 to 0.7). But the tendency is slightly positive, indicating that some noise may help the optimization algorithm to find better splits and merges.
+
+\begin{figure}[H]
+\centering
+\begin{minipage}[H]{0.48\textwidth}
+We now look at the negative cases.
+The results of this analysis are shown in Figure \ref{fig:rq2_noise_neg_distribution}. The strongest outliers occur at very low noise levels (0.0 and 0.1).
+As noise increases, the performance loss does not necessarily become "good", but it does become more predictable.
+The extreme outliers decrease noticeably.
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\includegraphics[width=\linewidth]{Images/evaluation/neg_noise.png}
+\caption{Distribution of negative relative improvement ($\mathrm{rel\_gain\_\%}$) according to noise scale.}
+\label{fig:rq2_noise_neg_distribution}
+\end{minipage}
+\end{figure}
+
+\subsubsection{R-Tree Variant}
+The last feature to look at, are the different R-Tree variants as defined in Chapter 2.
+\begin{table}[H]
+\centering
+\begin{tabular}{rrrrr}
+\hline
+\textbf{R-Tree Variant} & \textbf{Cases} & \textbf{Win rate [\%]} & \textbf{Mean rel. gain [\%]} & \textbf{Mean diff} \\
+\hline
+Linear    & 360 & 99.7 & 38.796 & -10.759 \\
+Quadratic & 360 & 59.7 & -8.596 & -0.314 \\
+R*        & 360 & 28.3 & -7.026 & 0.250 \\
+\hline
+\end{tabular}
+\caption{Performance by R-Tree variant: number of cases, win rate (share of test cases with fewer node visits), mean relative gain, and mean absolute difference.}
+\label{tab:rq2_rtree_analysis_variant_table}
+\end{table}
+The analysis proves that the R-Tree variant has a dramatic impact on optimization effectiveness. In Table \ref{tab:rq2_rtree_analysis_variant_table} the linear splitting algorithm shows exceptional performance with a 99.7\% win rate and nearly 39\% average improvement. 
+In contrast, quadratic splitting shows mixed results (59.7\% win rate, -8.6\% average gain), while R* performs poorly with only 28.3\% win rate and negative gains. 
+This suggests that the optimization strategy works best with simpler splitting algorithms that may leave more room for improvement through better clustering.
+
+\begin{figure}[H]
+\centering
+\begin{minipage}[H]{0.48\textwidth}
+Figure \ref{fig:rq2_rtree_variants_negative_dimensions} shows that the optimized index performs worst with a quadratic split heuristic in dimension 5. The quadratic variant is also bad in dimensions 10 and 20 but slightly better than in dimension 5.
+
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\includegraphics[width=\linewidth]{Images/evaluation/neg_variants.png}
+\caption{Distribution of negative relative improvement.}
+\label{fig:rq2_rtree_variants_negative_dimensions}
+\end{minipage}
+\end{figure}
+
+
+\section{Decision Rules and Feature Importance}
+% FI-Plot, Top-Regeln (3–5), Policy, Validierung (Permutation/CV)
+A feature importance analysis is a statistical technique used to rank features according to their importance in predicting a target variable. In our case, we want to understand which parameters have the most significant impact on the performance of the optimized clustering algorithm.
+\subsubsection{Decision Tree Classifier}
+To perform a feature importance analysis, we can use a decision tree machine learning model. Decision trees inherently provide feature importance scores based on how much each feature contributes to reducing the impurity (often the Gini impurity or entropy) in the tree. We can train a decision tree on our dataset and extract the feature importance scores.
+\newline\newline
+At first we have to prepare the data. We define a binary target variable indicating whether the optimization was successful or not:
+
+\[
+y = bbox\_better = (data['mean\_diff'] < 0)
+\]
+
+Also, we have to encode the categorical features of our training dataset $X$ (Distribution and R-Tree variant) into numerical values.
+
+
+\begin{table}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lrrrrrr}
+\hline
+\textbf{Test ID} & \textbf{Dimensions} & \textbf{Points per Distribution} & \textbf{Distributions} & \textbf{Distribution.\_enc} & \textbf{Noise Scale} & \textbf{Rtree\_enc} \\
+\hline
+case1    &  2  &  5000  &  1 & 0 & 0.1 & 0 \\
+case10   &  2  &  5000  &  1 & 0 & 0.3 & 2 \\
+case100  & 20  & 10000  &  1 & 0 & 0.7 & 0 \\
+case1000 & 20  & 20000  &  5 & 0 & 0.7 & 0 \\
+case1001 & 20  & 20000  &  5 & 0 & 0.1 & 1 \\
+\hline
+\end{tabular}
+}
+\caption{Sample of training data X with encoded categorical features for decision tree classifier.}
+\label{tab:rq_2_decision_tree_training_data}
+\end{table}
+A snippet of the training data $X$ is shown in Table \ref{tab:rq_2_decision_tree_training_data} with Table \ref{tab:rq2_class_encoding_scheme} being the encoding scheme for encoded categorical features.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lcc}
+\hline
+\textbf{Feature} & \textbf{Encoded Value} & \textbf{Original Value} \\
+\hline
+\multirow{2}{*}{Distribution} & 0 & Gaussian (864 test cases) \\
+& 1 & Uniform (216 test cases) \\
+\hline
+\multirow{3}{*}{R-Tree Variant} & 0 & Linear (360 test cases) \\
+& 1 & Quadratic (360 test cases) \\
+& 2 & R* (360 test cases) \\
+\hline
+\end{tabular}
+\caption{Encoding scheme for categorical features used in decision tree classifier.}
+\label{tab:rq2_class_encoding_scheme}
+\end{table}
+
+For example, the condition "Distribution (enc) $\leq 0.5$" corresponds to Gaussian distribution, while "R-Tree Variant (enc) $\leq 0.5$" corresponds to linear splitting.
+After that, we create a train-test split of the data with 80\% training data and 20\% test data.
+\newline\newline
+Then we train a decision tree classifier using the parameters $max\_depth=9$, $min\_samples\_split=5$ on $X_{train}$ to predict the target label $y_{train}$.
+The parameters were selected through trial and error in order to achieve the highest accuracy.
+\newline
+The result is a decision tree with an accuracy of 91.4\% on the test set.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Images/evaluation/decision_tree.png}
+    \caption{Structure of the trained decision tree classifier. Blue means a prediction that the optimized index would perform better, while orange means that the baseline index would perform better.}
+    \label{fig:rq2_decision_tree_structure}
+\end{figure}
+
+The structure of the trained decision tree is shown in Figure \ref{fig:rq2_decision_tree_structure}.
+The tree splits the data based on feature thresholds to classify whether the optimized index will perform better than the baseline index.
+The blue nodes indicate a prediction that the optimized index would perform better, while orange nodes indicate that the baseline index would perform better.
+\newline\newline
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{Images/evaluation/decision_tree_fi.png}
+    \caption{Extracted feature importance with scores from decision tree.}
+    \label{fig:rq2_decision_tree_fi}
+\end{figure}
+The feature importance extraction in Figure \ref{fig:rq2_decision_tree_fi} ranks the features according to variance regarding the relative improvement of using an optimized index.
+It reveals that the \emph{R-Tree variant} feature is the most important feature. We could have expected that, as the high variance is already visible in \ref{tab:rtree_analysis_variant_table}.
+The \emph{Distribution} feature of the dataset (Gaussian or uniform) does not appear to be important at all. It does not seem to have any influence. 
+This also corresponds with the observations from \ref{tab:rtree_analysis_dist_table}.
+The features \emph{Number of Points per Distribution}, \emph{Number of Dimensions}, \emph{Noise Scale}, \emph{Number of Distributions} also have an impact, but they are roughly equally important.
+\newline\newline
+We can also derive decision rules from the decision tree that we have trained.
+In other words, the paths that predict $I^\mathrm{opt}$.
+%$\(n_{\mathrm{distributions}}$ is the number of distributions.
+
+\begin{longtblr}[
+  label = none,
+  entry = none,
+]{
+  width = \linewidth,
+  colspec = {Q[942]},
+  vline{-} = {1-2,5,8,11,14,17,20,23,26,29,32,35}{},
+  hline{1-3,6,9,12,15,18,21,24,27,30,33,36} = {1}{},
+}
+\textbf{rule}                                                                                                                                                 \\
+rtree\_enc $<=$ 0.500 AND points\_per\_cluster $>$ 2250                                                                                                       \\
+\textbf{pred\_class: }$I^\mathrm{opt}$\textbf{ confidence: }1.0 \textbf{n\_samples: }229                                                                      \\
+                                                                                                                                                              \\
+rtree\_enc $>$ 0.500 AND rtree\_enc $<=$ 1.500 AND points\_per\_cluster $<=$ 4500 AND points\_per\_cluster $>$ 2250                                           \\
+\textbf{pred\_class: }$I^\mathrm{opt}$\textbf{ confidence:  }1.0 \textbf{n\_samples: }29\textbf{}                                                             \\
+                                                                                                                                                              \\
+rtree\_enc $<=$ 0.500 AND points\_per\_cluster $<=$ 2250 AND dims $<=$ 15                                                                                     \\
+\textbf{pred\_class:  }$I^\mathrm{opt}$\textbf{ confidence:  }1.0 \textbf{n\_samples: }22\textbf{}                                                            \\
+                                                                                                                                                              \\
+rtree\_enc $>$ 0.500 AND rtree\_enc $<=$ 1.500 AND points\_per\_cluster $>$ 4500 AND dims $<=$ 3 AND noise $>$ 0.050 AND $\(n_{\mathrm{distributions}}$ $>$ 1                    \\
+\textbf{pred\_class:  }$I^\mathrm{opt}$\textbf{ confidence:  }1.0 \textbf{n\_samples: }22\textbf{}                                                            \\
+                                                                                                                                                              \\
+rtree\_enc $>$ 0.500 AND rtree\_enc $<=$ 1.500 AND points\_per\_cluster $<=$ 4500 AND points\_per\_cluster $<=$ 2250 AND dims $>$ 7                           \\
+\textbf{pred\_class:  }$I^\mathrm{opt}$\textbf{ confidence:  }1.0 \textbf{n\_samples: }16\textbf{}                                                            \\
+                                                                                                                                                              \\
+rtree\_enc $>$ 0.500 AND rtree\_enc $>$ 1.500 AND dims $>$ 15 AND $\(n_{\mathrm{distributions}}$ $>$ 3 AND noise $>$ 0.400                                                       \\
+\textbf{pred\_class:  }$I^\mathrm{opt}$\textbf{ confidence:  }1.0 \textbf{n\_samples: }10\textbf{}                                                            \\
+                                                                                                                                                              \\
+rtree\_enc $>$ 0.500 AND rtree\_enc $<=$ 1.500 AND points\_per\_cluster $<=$ 4500 AND points\_per\_cluster $<=$ 2250 AND dims $<=$ 7 AND dist\_enc $<=$ 0.500 \\
+\textbf{pred\_class:  }$I^\mathrm{opt}$\textbf{ confidence: }0.917 \textbf{n\_samples: }12\textbf{}                                                           \\
+                                                                                                                                                              \\
+rtree\_enc $>$ 0.500 AND rtree\_enc $>$ 1.500 AND dims $>$ 15 AND $\(n_{\mathrm{distributions}}$ $>$ 3 AND noise $<=$ 0.400 AND points\_per\_cluster $<=$ 7000                   \\
+\textbf{pred\_class:  }$I^\mathrm{opt}$\textbf{ confidence:~}0.875 \textbf{n\_samples: }8\textbf{}                                                            \\
+                                                                                                                                                              \\
+rtree\_enc $>$ 0.500 AND rtree\_enc $<=$ 1.500 AND points\_per\_cluster $>$ 4500 AND dims $>$ 3 AND dims $>$ 15 AND dist\_enc $<=$ 0.500                      \\
+\textbf{pred\_class:  }$I^\mathrm{opt}$\textbf{ confidence:~}0.857 \textbf{n\_samples: }49\textbf{}                                                           \\
+                                                                                                                                                              \\
+rtree\_enc $>$ 0.500 AND rtree\_enc $<=$ 1.500 AND points\_per\_cluster $>$ 4500 AND dims $<=$ 3 AND noise $<=$ 0.050 AND points\_per\_cluster $<=$ 45000     \\
+\textbf{pred\_class:  }$I^\mathrm{opt}$\textbf{ confidence: }0.857 \textbf{n\_samples: }7\textbf{}                                                            \\
+                                                                                                                                                              \\
+rtree\_enc $>$ 0.500 AND rtree\_enc $<=$ 1.500 AND points\_per\_cluster $>$ 4500 AND dims $<=$ 3 AND noise $>$ 0.050 AND $\(n_{\mathrm{distributions}}$ $<=$ 1                   \\
+\textbf{pred\_class:  }$I^\mathrm{opt}$\textbf{ confidence:~}0.765 \textbf{n\_samples: }17\textbf{}                                                           \\
+                                                                                                                                                              \\
+rtree\_enc $>$ 0.500 AND rtree\_enc $>$ 1.500 AND dims $<=$ 15 AND points\_per\_cluster $<=$ 15000 AND dims $<=$ 3 AND points\_per\_cluster $>$ 4500          \\
+\textbf{pred\_class:  }$I^\mathrm{opt}$\textbf{ confidence: }0.75 \textbf{n\_samples: }16\textbf{}                                                            \\
+                                                                                                                                                              
+\end{longtblr}
+
+The decision tree confirms the feature-importance result. The most important feature is the \emph{R-Tree variant}. Next come \emph{points per distribution} and \emph{dimensionality}. 
+This matches the high variance we already see in \ref{tab:rq2_rtree_analysis_variant_table}. 
+The feature \emph{distribution} (gaussian vs.\ uniform) does not that matter much, which also fits \ref{tab:rq2_rtree_analysis_dist_table}. 
+The features \emph{number of points per distribution}, \emph{number of dimensions}, \emph{noise scale}, and \emph{number of distributions} also have an effect, but they are roughly equally important.
+\newline
+We can also read simple decision rules from the trained tree (paths that predict \(I^{\mathrm{opt}}\)):
+
+\begin{itemize}
+  \item Linear: if points per distribution \(> 2250\), the tree predicts \(I^{\mathrm{opt}}\) (confidence \(1.0\), \(n=229\)).
+  \item Quadratic: if \(2250 <\) points per distribution \(\le 4500\), the tree predicts \(I^{\mathrm{opt}}\) (confidence \(1.0\), \(n=29\)).
+  \item R*-Tree (niche case): \(I^{\mathrm{opt}}\) appears mainly when \(\mathrm{dims} > 15\), \(n_{\mathrm{distributions}} > 3\), and \(\mathrm{noise} > 0.4\) (confidence \(1.0\), \(n=10\)).
+\end{itemize}
+
+To summarize this: The index \(I^{\mathrm{opt}}\) is suitable for a linear R-Tree with large distributions, and for Quadratic R-Trees in the range \(2250\text{--}4500\) points per distribution. 
+Outside these ranges, the benefit is less common and depends more on \emph{number of dimensions} and \emph{noise scale}. The thresholds above are data-driven (picked by the decision tree).
+
+
+\section{Build Time vs. STR Bulk-Loading (RQ3)}
+Additionally to the test cases, we are comparing our approach with the STR-bulk loading method. \cite{Leutenegger1997}
+Bulk loading methods such as STR \cite{Leutenegger1997} or Hilbert R-Tree \cite{KamelFaloutsos1994} show that pre-sorted partitions can significantly increase the efficiency of R-Trees.
+Therefore, our optimization algorithm and its procedure must be able to keep up in order to be considered successful.
+For simplicity we compare against the STR algorithm which is a well-known method for bulk loading R-Trees, and its important to understand how our optimization compares to this baseline.
+We want to look at the building time.
+\newline\newline
+At first we have to get an understanding of the building process of both methods.
+The optimization of the R-Tree index consists of four main steps:
+\begin{itemize}
+    \item Clustering the data points with $k$-Means in Python3
+    \item Splitting the clusters into smaller groups in Python3
+    \item Computing the bounding boxes in Python3
+    \item Creating the index in C++
+\end{itemize}
+Now we generate new test-cases with the following parameters (see Table \ref{tab:rq3_testcase_params}).
+\begin{table}[h]
+\centering
+\begin{tabular}{ll}
+\hline
+\textbf{Factor} & \textbf{Levels} \\
+\hline
+Number of distributions $k$ & \{2\} \\
+Number of points $N$ & \{5{,}000, 10{,}000, 20{,}000, 50{,}000, 100{,}000, 200{,}000, 500{,}000\} \\
+Data distribution & \{\textsc{gaussian}\} \\
+Noise scale & \{0.1\}\\
+Dimensions $d$ & \{2, 5, 10, 20, 50, 100\} \\
+R-Tree variant & \{0 (linear)\} \\
+Min--max points per distribution & \{(0.005, 0.01)\} of $N$ \\
+\hline
+Total combinations & \textbf{42} \\
+\hline
+\end{tabular}
+\caption{Full factorial design with conditional noise (only for Gaussian).}
+\label{tab:rq3_testcase_params}
+\end{table}
+\newline
+This time we focus on the impact of the optimization on the building time of the R-Tree index.
+So we create an optimized index $I^{\mathrm{opt}}$ as described above and a baseline index $I^{\mathrm{STR}}$ using the STR-bulk loading method for each testcase.
+We record the building time of both indexes and compare them.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Images/evaluation/construction_rtree_numdims.png}
+        \caption{Building time comparison in relation with the number of dimensions.}
+        \label{fig:building_time_comparison}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Images/evaluation/construction_rtree_numpoints.png}
+        \caption{Building time comparison in relation with the number of points.}
+        \label{fig:building_time_scaling}
+    \end{subfigure}
+    \caption{Building time analysis for different methods and dataset sizes.}
+    \label{fig:rq3_building_time_analysis}
+\end{figure}
+Figure \ref{fig:rq3_building_time_analysis} shows that STR--Bulk is significantly faster when building R-Tree indexes, even when dimensionality increases.
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{Images/evaluation/construction_rtree_optimized.png}
+    \caption{Median build time of the optimized index decomposed into components (KMeans, split, BBox calculation, and C++ index construction) as a function of dimensionality.}
+    \label{fig:build_time_breakdown}
+\end{figure}
+\newline
+Figure \ref{fig:build_time_breakdown} shows the median build time of the optimized index with its components regarding dimensionality. 
+The total costs are largely determined by $k$-Means and the R-Tree index construction. 
+As dimensionality increases, the index construction time grows more rapidly almost linear with $d$, exceeding the $k$-Means time at around 50–70 dimensions. 
+The optimization of the clusters (Split) and boundng box computation computation steps play a minor role in this. These two feature are almost constant with increasing dimensionality.
+\newline\newline 
+Overall, the pure index construction of the optimized approach scales approximately linearly in dimensionality, but with a significantly higher slope than the STR bulk approach.
+
+
+\section{Negative Cases and Causes}
+\label{sec:failure_risks}
+
+We have identified cases, in which losses occur often:\newline
+\begin{itemize}
+    \item in medium dimensions $d\!\in\!\{5,10\}$ (see Table~\ref{tab:rq2_dim_analysis})
+    \item with \emph{uniform} or very low-noise distribution (noise $\in\{0.0,0.1\}$; see Tab.~\ref{tab:rq2_rtree_analysis_dist_table}, \ref{tab:rq2_noise_analysis})
+    \item with \emph{Quadratic}/\emph{R*}-variant (see Tab.~\ref{tab:rq2_rtree_analysis_variant_table})
+\end{itemize}
+
+\paragraph{Possible causes (hypotheses).}
+Uniform distributions or distributions with very low noise generate weak start clusters. 
+$k$-Means applied to such a distribution causes very strong overlap in all directions, as $k$-Means generates spherical clusters. 
+This means that preprocessing is of little use because the MBRs overlap significantly.
+\newline\newline
+Furthermore, quadratic and R*-Tree variants use reinsert and split heuristics.
+When we insert pre-clustered batches of points, these heuristics can trigger long split chains and move entries between nodes, which increases MBR overlap.
+This means that preprocessing is of little use because the tree recreates overlap and reduces the benefit of the groups.
+\newline\newline
+At $d=5$ and $d=10$, overlap between MBRs is high enough to make $k$NN harder.
+At very high $d$, almost everything overlaps for both indexes, so the difference between strategies tends to level out.
+Our pre-clustering still helps in many cases, but the effect becomes more stable rather than growing without bound.
+
+\paragraph{Risks in measurement.}
+We assume queries come from the same distribution as the data ($q \sim \mathcal{P}$). This can be too optimistic. If the real query distribution shifts, the gains will likely drop.\newline
+Furthermore, "Nodes visited" is only a good metric for runtime in this test scenario. It ignores caching, memory/I/O, and implementation details, so it only approximates true execution time.
+
+\section{Summary}
+\label{sec:summary}
+
+\paragraph{RQ1 (Query efficiency).}
+Across 1080 test cases, the optimized index \(I^{\mathrm{opt}}\) reduces node visits in most cases.
+The median relative gain is \(\approx 8.3\%\) and the mean is \(\approx 7.7\%\).
+About \(60\text{--}65\%\) of the cases are positive (see ECDF).
+There are a few strong negative outliers (down to \(-230\%\)), and some strong wins (up to \(+80\%\)).
+Which was also shown in PLATON \cite{YangSIGMOD2023}. 
+Efficiency depends heavily on the dataset. The experiments of this thesis confirm this finding. While improvements are achieved in most cases, there exist outliers with performance losses.
+
+\paragraph{RQ2 (When does it help?).}
+The most important factors are the \emph{R-Tree variant}, \emph{points per distribution}, and \emph{dimensionality}.
+Simple rules from the decision tree:
+(i) \textbf{Linear}: if points per distribution \(> 2250\), \(I^{\mathrm{opt}}\) is usually better;
+(ii) \textbf{Quadratic}: if \(2250 <\) points per distribution \(\le 4500\), \(I^{\mathrm{opt}}\) is often better;
+(iii) \textbf{R*}: only useful in niche settings (e.g., high \(d\), many distributions, higher noise).
+Gaussian data benefits more than uniform; very low noise and mid dimensions (\(d=5,10\)) are risk zones.
+
+\paragraph{RQ3 (Build time).}
+STR bulk loading is consistently faster for pure index construction.
+For \(200\text{k}\)–\(500\text{k}\) points we observe about \(8\text{--}13\times\) faster builds with STR, even as \(d\) grows.
+In the optimized pipeline, \emph{$k$-Means} and the C++ index build dominate the total build time; \emph{split} and \emph{BBox} are minor.

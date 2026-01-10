@@ -1,0 +1,40 @@
+\chapter{Related Work}
+Now that all the basic concepts are familiar and the aim of the thesis is clear, let's take a look at the current state of research and related work.
+This includes various R-Tree variants, bulk loading methods, high-dimensional indexing approaches, machine-learned methods, and constrained $k$-Means clustering.
+\paragraph{R-Tree and R*-Tree.}
+Guttman's R-Tree is the classic dynamic index structure for spatial data.
+It forms the basis for many subsequent spatial indexing methods, including the R*-Tree.
+As already explained in section 2.3.1 R-Tree, the R*-Tree improves splitting and uses reinsertion to reduce the area, perimeter, and overlap of the MBRs, therefore optimizing the R-Tree for better query performance.
+Especially the R*-Tree is still a robust standard in many systems.
+
+\paragraph{Bulk loading and space-filling orders.}
+For static or batched data, bulk loading methods can create R-Trees with better performance than those built by inserting objects one by one.
+These methods typically involve sorting the data according to a space-filling curve before constructing the tree.
+The Hilbert R–Tree sorts objects by Hilbert values before inserting them into the R-Tree \cite{KamelFaloutsos1994}.
+Another form of bulk loading is the STR (sort-tile-recursive) algorithm.
+It's a simple method that tries to generate well-filled nodes with little overlap \cite{Leutenegger1997}.
+
+\paragraph{High-dimensional indexing with X-Trees.}
+As dimensionality grows, MBRs get bigger and overlap increases, which leads to a decrease of pruning capabilities due to the curse of dimensionality.
+The X–Tree addresses this by using overlap-avoiding splits and, when necessary, using supernodes instead of forcing poor splits, 
+which improves query performance in moderate-to-high dimensions \cite{Berchtold1996}.
+
+\paragraph{Machine-learned bulk loading.}
+PLATON uses a top-down R–Tree construction and applies Monte Carlo Tree Search to learn a partitioning policy fine-tuned to the data and workload.
+This even outperforms classical bulk loaders (including R*-Trees) in query performance while retaining the R-Tree structure \cite{YangSIGMOD2023}.
+
+\paragraph{Constrained K-Means Clustering.}
+% https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/tr-2000-65.pdf
+Because page and leaf capacities are limited, clustering must often respect lower/upper bounds on cluster sizes. Constrained $k$–Means provides a good basis for enforcing \emph{MIN/MAX points per cluster} \cite{Bradley2000}.
+
+\paragraph{Synthesis for this thesis.}
+The literature indicates three effective levers for R–Tree performance:
+
+\begin{itemize}
+    \item \emph{low-overlap partitions} (R*, Hilbert/STR, X–Tree)
+    \item \emph{data/workload-aware construction} (learned and RL-based methods)
+    \item \emph{capacity-aware clustering} that aligns cluster sizes with leaf capacity
+\end{itemize}
+
+This thesis follows these aspects by using $k$-Means clustering with a capacity-aware post-processing step to create low-overlap partitions, which are then used to build an R-Tree index. 
+This approach uses the strengths of clustering and optimization to improve R-Tree index partitioning and query performance.

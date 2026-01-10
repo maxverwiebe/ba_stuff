@@ -1,0 +1,13 @@
+\chapter*{Abstract}
+\label{cha:abtract} 
+
+Spatial indexes like R-Trees degrade in performance when the data partitions are unbalanced and their bounding boxes overlap significantly.
+This thesis presents a capacity-aware clustering pipeline for index partitioning, which starts with a standard clustering algorithm like $k$-Means and then optimizes the clusters with a post-processing algorithm to minimize overlap and balance their sizes.
+Oversized clusters are recursively split by KD-style median cuts along the longest axis, while undersized clusters are greedily merged into the neighbor that minimally increases the union MBR volume.
+This enforces hard constraints on the cluster sizes while minimizing overlap.
+The optimized clusters are then used as partitions for building an R-Tree, which improves query performance significantly.
+\newline \newline
+An extensive experimental evaluation on synthetic datasets in different dimensions and data distributions shows that the optimization achieves a median reduction of $\approx 8.3\%$ and a mean reduction of $\approx 7.7\%$ in node visits, with positive effects in roughly 60–65\% of scenarios.
+The largest gains occur with linear split heuristics.
+% \paragraph{Keywords} A, B, C
+

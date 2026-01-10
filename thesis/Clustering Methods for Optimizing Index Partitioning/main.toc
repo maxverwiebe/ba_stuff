@@ -1,0 +1,112 @@
+\babel@toc {english}{}\relax 
+\babel@toc {english}{}\relax 
+\contentsline {chapter}{Statement of Originality}{III}{chapter*.2}%
+\contentsline {chapter}{Contents}{IV}{chapter*.3}%
+\addcontentsline {toc}{chapter}{Contents}
+\contentsline {chapter}{\numberline {1}Introduction}{1}{chapter.4}%
+\contentsline {section}{\numberline {1.1}Motivation}{1}{section.5}%
+\contentsline {section}{\numberline {1.2}Problem Statement}{1}{section.6}%
+\contentsline {section}{\numberline {1.3}Goals and Contributions}{2}{section.7}%
+\contentsline {section}{\numberline {1.4}Structure of the Thesis}{2}{section.8}%
+\contentsline {chapter}{\numberline {2}Fundamentals}{3}{chapter.9}%
+\contentsline {section}{\numberline {2.1}Data}{3}{section.10}%
+\contentsline {paragraph}{\nonumberline Note on numerical features.}{3}{paragraph*.12}%
+\contentsline {paragraph}{\nonumberline Distance metric.}{3}{paragraph*.14}%
+\contentsline {section}{\numberline {2.2}Clustering}{3}{section.15}%
+\contentsline {subsection}{\numberline {2.2.1}k-Means}{5}{subsection.17}%
+\contentsline {subsection}{\numberline {2.2.2}Bounding Boxes}{7}{subsection.21}%
+\contentsline {paragraph}{\nonumberline Quality measures.}{7}{paragraph*.24}%
+\contentsline {section}{\numberline {2.3}Spatial Indexing}{7}{section.25}%
+\contentsline {subsection}{\numberline {2.3.1}R-Tree}{8}{subsection.26}%
+\contentsline {paragraph}{\nonumberline Linear Split}{9}{paragraph*.30}%
+\contentsline {paragraph}{\nonumberline Quadratic Split}{9}{paragraph*.32}%
+\contentsline {paragraph}{\nonumberline R*-Tree}{9}{paragraph*.34}%
+\contentsline {section}{\numberline {2.4}Queries}{10}{section.35}%
+\contentsline {subsection}{\numberline {2.4.1}Nearest Neighbor Queries ($k$NN)}{10}{subsection.36}%
+\contentsline {section}{\numberline {2.5}Evaluation of Spatial Indexes}{13}{section.43}%
+\contentsline {subsection}{\numberline {2.5.1}Visited Nodes}{13}{subsection.44}%
+\contentsline {chapter}{\numberline {3}Related Work}{14}{chapter.45}%
+\contentsline {paragraph}{\nonumberline R-Tree and R*-Tree.}{14}{paragraph*.47}%
+\contentsline {paragraph}{\nonumberline Bulk loading and space-filling orders.}{14}{paragraph*.49}%
+\contentsline {paragraph}{\nonumberline High-dimensional indexing with X-Trees.}{14}{paragraph*.51}%
+\contentsline {paragraph}{\nonumberline Machine-learned bulk loading.}{14}{paragraph*.53}%
+\contentsline {paragraph}{\nonumberline Constrained K-Means Clustering.}{15}{paragraph*.55}%
+\contentsline {paragraph}{\nonumberline Synthesis for this thesis.}{15}{paragraph*.57}%
+\contentsline {chapter}{\numberline {4}Problem Context}{16}{chapter.58}%
+\contentsline {paragraph}{\nonumberline Data pages and capacity.}{17}{paragraph*.61}%
+\contentsline {chapter}{\numberline {5}Baseline Clustering with k-Means}{18}{chapter.62}%
+\contentsline {paragraph}{\nonumberline Shape}{18}{paragraph*.66}%
+\contentsline {paragraph}{\nonumberline Size and density}{19}{paragraph*.68}%
+\contentsline {paragraph}{\nonumberline Outliers}{19}{paragraph*.70}%
+\contentsline {paragraph}{\nonumberline Shape mismatch.}{19}{paragraph*.73}%
+\contentsline {paragraph}{\nonumberline Capacity mismatch.}{19}{paragraph*.75}%
+\contentsline {chapter}{\numberline {6}Post-Processing Cluster Optimization Algorithm}{20}{chapter.76}%
+\contentsline {section}{\numberline {6.1}Goal and Setting}{20}{section.77}%
+\contentsline {paragraph}{\nonumberline Inputs.}{20}{paragraph*.79}%
+\contentsline {paragraph}{\nonumberline Outputs.}{20}{paragraph*.81}%
+\contentsline {section}{\numberline {6.2}Design Principles}{20}{section.82}%
+\contentsline {section}{\numberline {6.3}Algorithm Overview}{21}{section.83}%
+\contentsline {subsection}{\numberline {6.3.1}Phase 1: Split Oversized Clusters}{21}{subsection.84}%
+\contentsline {paragraph}{\nonumberline Note on KD-split.}{21}{paragraph*.89}%
+\contentsline {paragraph}{\nonumberline When do we split?}{21}{paragraph*.91}%
+\contentsline {paragraph}{\nonumberline How do we choose the split?}{21}{paragraph*.93}%
+\contentsline {paragraph}{\nonumberline Result}{22}{paragraph*.95}%
+\contentsline {paragraph}{\nonumberline What happens if the cluster is still oversized?}{22}{paragraph*.97}%
+\contentsline {paragraph}{\nonumberline Edgecase zero-span}{22}{paragraph*.99}%
+\contentsline {subsection}{\numberline {6.3.2}Phase 2: Merge Undersized Clusters}{22}{subsection.100}%
+\contentsline {paragraph}{\nonumberline When do we merge?}{22}{paragraph*.102}%
+\contentsline {paragraph}{\nonumberline Which neighbour do we choose?}{22}{paragraph*.104}%
+\contentsline {paragraph}{\nonumberline What happens if the merged cluster becomes oversized?}{23}{paragraph*.106}%
+\contentsline {paragraph}{\nonumberline What happens if the merged cluster is still undersized?}{23}{paragraph*.108}%
+\contentsline {section}{\numberline {6.4}Pseudocode}{24}{section.109}%
+\contentsline {section}{\numberline {6.5}Termination}{26}{section.112}%
+\contentsline {section}{\numberline {6.6}Complexity and Scalability}{26}{section.113}%
+\contentsline {paragraph}{\nonumberline Initialization.}{26}{paragraph*.115}%
+\contentsline {paragraph}{\nonumberline Splitting.}{26}{paragraph*.117}%
+\contentsline {paragraph}{\nonumberline Merging.}{26}{paragraph*.119}%
+\contentsline {paragraph}{\nonumberline Total time.}{27}{paragraph*.121}%
+\contentsline {paragraph}{\nonumberline Space complexity.}{27}{paragraph*.123}%
+\contentsline {section}{\numberline {6.7}Example}{27}{section.124}%
+\contentsline {paragraph}{\nonumberline Tiny 1D example.}{27}{paragraph*.126}%
+\contentsline {section}{\numberline {6.8}Effect on Indexing}{28}{section.127}%
+\contentsline {chapter}{\numberline {7}Integration of Optimized Clustering into Index Partitioning}{29}{chapter.129}%
+\contentsline {section}{\numberline {7.1}Pipeline Overview}{29}{section.130}%
+\contentsline {section}{\numberline {7.2}Basic Clustering}{30}{section.132}%
+\contentsline {section}{\numberline {7.3}Optimizing the Clusters}{30}{section.133}%
+\contentsline {section}{\numberline {7.4}Mapping Clusters to R-Tree Partitions}{30}{section.134}%
+\contentsline {section}{\numberline {7.5}Building the R-Tree}{30}{section.135}%
+\contentsline {paragraph}{\nonumberline Practical note on bulk-loading.}{30}{paragraph*.137}%
+\contentsline {chapter}{\numberline {8}Evaluation}{31}{chapter.138}%
+\contentsline {section}{\numberline {8.1}Research Questions and Setup}{31}{section.139}%
+\contentsline {subsection}{\numberline {8.1.1}Test Case}{31}{subsection.144}%
+\contentsline {subsubsection}{\nonumberline Dataset Generation}{32}{subsubsection*.147}%
+\contentsline {subsubsection}{\nonumberline Index Construction}{33}{subsubsection*.150}%
+\contentsline {subsubsection}{\nonumberline Queries and Evaluation Metrics}{33}{subsubsection*.152}%
+\contentsline {subsubsection}{\nonumberline Evaluation}{34}{subsubsection*.155}%
+\contentsline {section}{\numberline {8.2}Overall Results (RQ1)}{35}{section.157}%
+\contentsline {subsection}{\numberline {8.2.1}Results}{36}{subsection.160}%
+\contentsline {section}{\numberline {8.3}Factor Analysis (RQ2)}{40}{section.165}%
+\contentsline {subsubsection}{\nonumberline Dimensionality}{40}{subsubsection*.167}%
+\contentsline {subsubsection}{\nonumberline Number of Points / Points per Distribution}{41}{subsubsection*.172}%
+\contentsline {paragraph}{\nonumberline Combination with dimensions}{42}{paragraph*.176}%
+\contentsline {subsubsection}{\nonumberline Distribution Type and Noise}{43}{subsubsection*.179}%
+\contentsline {paragraph}{\nonumberline Noise scale}{44}{paragraph*.182}%
+\contentsline {subsubsection}{\nonumberline R-Tree Variant}{44}{subsubsection*.186}%
+\contentsline {section}{\numberline {8.4}Decision Rules and Feature Importance}{45}{section.189}%
+\contentsline {subsubsection}{\nonumberline Decision Tree Classifier}{45}{subsubsection*.191}%
+\contentsline {section}{\numberline {8.5}Build Time vs. STR Bulk-Loading (RQ3)}{50}{section.196}%
+\contentsline {section}{\numberline {8.6}Negative Cases and Causes}{52}{section.200}%
+\contentsline {paragraph}{\nonumberline Possible causes (hypotheses).}{52}{paragraph*.202}%
+\contentsline {paragraph}{\nonumberline Risks in measurement.}{53}{paragraph*.204}%
+\contentsline {section}{\numberline {8.7}Summary}{53}{section.205}%
+\contentsline {paragraph}{\nonumberline RQ1 (Query efficiency).}{53}{paragraph*.207}%
+\contentsline {paragraph}{\nonumberline RQ2 (When does it help?).}{53}{paragraph*.209}%
+\contentsline {paragraph}{\nonumberline RQ3 (Build time).}{53}{paragraph*.211}%
+\contentsline {chapter}{\numberline {9}Summary and Outlook}{54}{chapter.212}%
+\contentsline {section}{\numberline {9.1}Key Findings}{54}{section.213}%
+\contentsline {section}{\numberline {9.2}Limitations}{54}{section.214}%
+\contentsline {section}{\numberline {9.3}Future Work}{54}{section.215}%
+\contentsline {paragraph}{\nonumberline Testing}{54}{paragraph*.217}%
+\contentsline {paragraph}{\nonumberline Bulk-Loading}{55}{paragraph*.219}%
+\contentsline {paragraph}{\nonumberline Intelligent Procedure}{55}{paragraph*.221}%
+\providecommand \tocbasic@end@toc@file {}\tocbasic@end@toc@file 

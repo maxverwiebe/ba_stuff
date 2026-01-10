@@ -1,0 +1,567 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.3 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{anyt/global//global/global/global}
+    \entry{PriotrityR-Tree2008}{article}{}{}
+      \name{author}{4}{}{%
+        {{hash=0c7b7aafc24062203582c92d3fe0ea30}{%
+           family={Arge},
+           familyi={A\bibinitperiod},
+           given={Lars},
+           giveni={L\bibinitperiod}}}%
+        {{hash=709328df36dd4b7231c4093aeaa41e06}{%
+           family={Berg},
+           familyi={B\bibinitperiod},
+           given={Mark},
+           giveni={M\bibinitperiod}}}%
+        {{hash=6747bc2dc295f43ae653afa446573779}{%
+           family={Haverkort},
+           familyi={H\bibinitperiod},
+           given={Herman},
+           giveni={H\bibinitperiod}}}%
+        {{hash=91ceec99caada2f2587e7657c721f3f5}{%
+           family={Yi},
+           familyi={Y\bibinitperiod},
+           given={Ke},
+           giveni={K\bibinitperiod}}}%
+      }
+      \strng{namehash}{277b17f1dbba0c6274bb5138970848ba}
+      \strng{fullhash}{41748c4d4024dacb603710df7fd85707}
+      \strng{fullhashraw}{41748c4d4024dacb603710df7fd85707}
+      \strng{bibnamehash}{277b17f1dbba0c6274bb5138970848ba}
+      \strng{authorbibnamehash}{277b17f1dbba0c6274bb5138970848ba}
+      \strng{authornamehash}{277b17f1dbba0c6274bb5138970848ba}
+      \strng{authorfullhash}{41748c4d4024dacb603710df7fd85707}
+      \strng{authorfullhashraw}{41748c4d4024dacb603710df7fd85707}
+      \field{labelalpha}{Arg+08}
+      \field{sortinit}{A}
+      \field{sortinithash}{2f401846e2029bad6b3ecc16d50031e2}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{ACM Transactions on Algorithms}
+      \field{month}{03}
+      \field{title}{The Priority R-Tree: A Practically Efficient and Worst-Case-Optimal R-Tree}
+      \field{volume}{4}
+      \field{year}{2008}
+      \verb{doi}
+      \verb 10.1145/1328911.1328920
+      \endverb
+      \verb{urlraw}
+      \verb https://dl.acm.org/doi/10.1145/1328911.1328920
+      \endverb
+      \verb{url}
+      \verb https://dl.acm.org/doi/10.1145/1328911.1328920
+      \endverb
+    \endentry
+    \entry{Bradley2000}{report}{}{}
+      \name{author}{3}{}{%
+        {{hash=1ebaa5fe47c7bc34860541c63d1abed2}{%
+           family={Bradley},
+           familyi={B\bibinitperiod},
+           given={P.\bibnamedelimi S.},
+           giveni={P\bibinitperiod\bibinitdelim S\bibinitperiod}}}%
+        {{hash=8363b1860750c1c49dd8b270c5e6e443}{%
+           family={Bennett},
+           familyi={B\bibinitperiod},
+           given={K.\bibnamedelimi P.},
+           giveni={K\bibinitperiod\bibinitdelim P\bibinitperiod}}}%
+        {{hash=377a270bbbf05c09051b601da5779d65}{%
+           family={Demiriz},
+           familyi={D\bibinitperiod},
+           given={Ayhan},
+           giveni={A\bibinitperiod}}}%
+      }
+      \list{institution}{1}{%
+        {Microsoft Research}%
+      }
+      \strng{namehash}{b7f595f6cc01a782614b08e7b52cd104}
+      \strng{fullhash}{b7f595f6cc01a782614b08e7b52cd104}
+      \strng{fullhashraw}{b7f595f6cc01a782614b08e7b52cd104}
+      \strng{bibnamehash}{b7f595f6cc01a782614b08e7b52cd104}
+      \strng{authorbibnamehash}{b7f595f6cc01a782614b08e7b52cd104}
+      \strng{authornamehash}{b7f595f6cc01a782614b08e7b52cd104}
+      \strng{authorfullhash}{b7f595f6cc01a782614b08e7b52cd104}
+      \strng{authorfullhashraw}{b7f595f6cc01a782614b08e7b52cd104}
+      \field{labelalpha}{BBD00}
+      \field{sortinit}{B}
+      \field{sortinithash}{d7095fff47cda75ca2589920aae98399}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{month}{5}
+      \field{number}{MSR-TR-2000-65}
+      \field{title}{Constrained k{-}Means Clustering}
+      \field{type}{techreport}
+      \field{year}{2000}
+      \verb{urlraw}
+      \verb https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/tr-2000-65.pdf
+      \endverb
+      \verb{url}
+      \verb https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/tr-2000-65.pdf
+      \endverb
+    \endentry
+    \entry{Berchtold1996}{inproceedings}{}{}
+      \name{author}{3}{}{%
+        {{hash=bd7848507ab55485b6fd409ad3176d17}{%
+           family={Berchtold},
+           familyi={B\bibinitperiod},
+           given={Stefan},
+           giveni={S\bibinitperiod}}}%
+        {{hash=afd6b4c7bfdbc6a8849818a152ed8006}{%
+           family={Keim},
+           familyi={K\bibinitperiod},
+           given={Daniel\bibnamedelima A.},
+           giveni={D\bibinitperiod\bibinitdelim A\bibinitperiod}}}%
+        {{hash=9559fe65ed2c0877cf14a66fe1f8e9b3}{%
+           family={Kriegel},
+           familyi={K\bibinitperiod},
+           given={Hans{-}Peter},
+           giveni={H\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {Morgan Kaufmann}%
+      }
+      \strng{namehash}{99c3b4fd9ef286da5cf02743b8dbcc4b}
+      \strng{fullhash}{99c3b4fd9ef286da5cf02743b8dbcc4b}
+      \strng{fullhashraw}{99c3b4fd9ef286da5cf02743b8dbcc4b}
+      \strng{bibnamehash}{99c3b4fd9ef286da5cf02743b8dbcc4b}
+      \strng{authorbibnamehash}{99c3b4fd9ef286da5cf02743b8dbcc4b}
+      \strng{authornamehash}{99c3b4fd9ef286da5cf02743b8dbcc4b}
+      \strng{authorfullhash}{99c3b4fd9ef286da5cf02743b8dbcc4b}
+      \strng{authorfullhashraw}{99c3b4fd9ef286da5cf02743b8dbcc4b}
+      \field{labelalpha}{BKK96}
+      \field{sortinit}{B}
+      \field{sortinithash}{d7095fff47cda75ca2589920aae98399}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Proceedings of the 22nd International Conference on Very Large Data Bases (VLDB)}
+      \field{title}{The X{-}Tree: An Index Structure for High{-}Dimensional Data}
+      \field{year}{1996}
+      \field{pages}{28\bibrangedash 39}
+      \range{pages}{12}
+      \verb{urlraw}
+      \verb https://bib.dbvis.de/uploadedFiles/58.pdf
+      \endverb
+      \verb{url}
+      \verb https://bib.dbvis.de/uploadedFiles/58.pdf
+      \endverb
+    \endentry
+    \entry{Brakatsoulas2002}{inproceedings}{}{}
+      \name{author}{3}{}{%
+        {{hash=7b73672fff39583e3d6416cb2e70134c}{%
+           family={Brakatsoulas},
+           familyi={B\bibinitperiod},
+           given={Sotiris},
+           giveni={S\bibinitperiod}}}%
+        {{hash=0c8913d26470f4e5b0bda4b53fd432f7}{%
+           family={Pfoser},
+           familyi={P\bibinitperiod},
+           given={Dieter},
+           giveni={D\bibinitperiod}}}%
+        {{hash=d7855861b77ed6e98f54ca6e9ace4214}{%
+           family={Theodoridis},
+           familyi={T\bibinitperiod},
+           given={Yannis},
+           giveni={Y\bibinitperiod}}}%
+      }
+      \name{editor}{2}{}{%
+        {{hash=3d347a2caa71032e33b8a036660d931a}{%
+           family={Manolopoulos},
+           familyi={M\bibinitperiod},
+           given={Yannis},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=9a62bd6d4ca1fb43ba59194026e292d9}{%
+           family={Návrat},
+           familyi={N\bibinitperiod},
+           given={Pavol},
+           giveni={P\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {Berlin, Heidelberg}%
+      }
+      \list{publisher}{1}{%
+        {Springer Berlin Heidelberg}%
+      }
+      \strng{namehash}{6aad168f30648eb97b9f82b9f09efcf9}
+      \strng{fullhash}{6aad168f30648eb97b9f82b9f09efcf9}
+      \strng{fullhashraw}{6aad168f30648eb97b9f82b9f09efcf9}
+      \strng{bibnamehash}{6aad168f30648eb97b9f82b9f09efcf9}
+      \strng{authorbibnamehash}{6aad168f30648eb97b9f82b9f09efcf9}
+      \strng{authornamehash}{6aad168f30648eb97b9f82b9f09efcf9}
+      \strng{authorfullhash}{6aad168f30648eb97b9f82b9f09efcf9}
+      \strng{authorfullhashraw}{6aad168f30648eb97b9f82b9f09efcf9}
+      \strng{editorbibnamehash}{517171cdb71ca6b1f411625b6609f894}
+      \strng{editornamehash}{517171cdb71ca6b1f411625b6609f894}
+      \strng{editorfullhash}{517171cdb71ca6b1f411625b6609f894}
+      \strng{editorfullhashraw}{517171cdb71ca6b1f411625b6609f894}
+      \field{labelalpha}{BPT02}
+      \field{sortinit}{B}
+      \field{sortinithash}{d7095fff47cda75ca2589920aae98399}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Spatial indexing is a we researched field that benefited computer science with many outstanding results. Our effort in this paper can be seen as revisiting some outstanding contributions to spatial indexing, questioning some paradigms, and designing an access method with globally improved performance characteristics. In particular, we argue that dynamic R-tree construction is a typical clustering problem which can be addressed by incorporating existing clustering algorithms. As a working example, we adopt the well-known k-means algorithm. Further, we study the effect of relaxing the ``two-way'' split procedure and propose a ``multi-way'' split, which inherently is supported by clustering tech- niques. We compare our clustering approach to two prominent examples of spatial access methods, the R- and the R*-tree.}
+      \field{booktitle}{Advances in Databases and Information Systems}
+      \field{isbn}{978-3-540-45710-7}
+      \field{title}{Revisiting R-Tree Construction Principles}
+      \field{year}{2002}
+      \field{pages}{149\bibrangedash 162}
+      \range{pages}{14}
+      \verb{doi}
+      \verb 10.1007/3-540-45710-0_13
+      \endverb
+      \verb{urlraw}
+      \verb https://www.dieter.pfoser.org/files/pubs/pdfs/brakatsoulas_rtree02.pdf
+      \endverb
+      \verb{url}
+      \verb https://www.dieter.pfoser.org/files/pubs/pdfs/brakatsoulas_rtree02.pdf
+      \endverb
+    \endentry
+    \entry{CoverHart1967}{article}{}{}
+      \name{author}{2}{}{%
+        {{hash=e05a925b2cfe910a6897d43f9ba39978}{%
+           family={Cover},
+           familyi={C\bibinitperiod},
+           given={T.},
+           giveni={T\bibinitperiod}}}%
+        {{hash=9a57c30a474f492865fd485f0f8748f5}{%
+           family={Hart},
+           familyi={H\bibinitperiod},
+           given={P.},
+           giveni={P\bibinitperiod}}}%
+      }
+      \strng{namehash}{79f254d94cf7ed6ac9aed53475e87a36}
+      \strng{fullhash}{79f254d94cf7ed6ac9aed53475e87a36}
+      \strng{fullhashraw}{79f254d94cf7ed6ac9aed53475e87a36}
+      \strng{bibnamehash}{79f254d94cf7ed6ac9aed53475e87a36}
+      \strng{authorbibnamehash}{79f254d94cf7ed6ac9aed53475e87a36}
+      \strng{authornamehash}{79f254d94cf7ed6ac9aed53475e87a36}
+      \strng{authorfullhash}{79f254d94cf7ed6ac9aed53475e87a36}
+      \strng{authorfullhashraw}{79f254d94cf7ed6ac9aed53475e87a36}
+      \field{labelalpha}{CH67}
+      \field{sortinit}{C}
+      \field{sortinithash}{4d103a86280481745c9c897c925753c0}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{IEEE Transactions on Information Theory}
+      \field{number}{1}
+      \field{title}{Nearest neighbor pattern classification}
+      \field{volume}{13}
+      \field{year}{1967}
+      \field{pages}{21\bibrangedash 27}
+      \range{pages}{7}
+      \verb{doi}
+      \verb 10.1109/TIT.1967.1053964
+      \endverb
+      \keyw{Bayes methods;Posterior probability;Convergence;Auditory displays;Random variables;Loss measurement;Extraterrestrial measurements;Density measurement;Accuracy;Visualization}
+    \endentry
+    \entry{R-Tree-Guttman-1984}{article}{}{}
+      \name{author}{1}{}{%
+        {{hash=c628fd70edfa0bbd1f1060b9727bb854}{%
+           family={Guttman},
+           familyi={G\bibinitperiod},
+           given={Antonin},
+           giveni={A\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {New York, NY, USA}%
+      }
+      \list{publisher}{1}{%
+        {Association for Computing Machinery}%
+      }
+      \strng{namehash}{c628fd70edfa0bbd1f1060b9727bb854}
+      \strng{fullhash}{c628fd70edfa0bbd1f1060b9727bb854}
+      \strng{fullhashraw}{c628fd70edfa0bbd1f1060b9727bb854}
+      \strng{bibnamehash}{c628fd70edfa0bbd1f1060b9727bb854}
+      \strng{authorbibnamehash}{c628fd70edfa0bbd1f1060b9727bb854}
+      \strng{authornamehash}{c628fd70edfa0bbd1f1060b9727bb854}
+      \strng{authorfullhash}{c628fd70edfa0bbd1f1060b9727bb854}
+      \strng{authorfullhashraw}{c628fd70edfa0bbd1f1060b9727bb854}
+      \field{labelalpha}{Gut84}
+      \field{sortinit}{G}
+      \field{sortinithash}{32d67eca0634bf53703493fb1090a2e8}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{In order to handle spatial data efficiently, as required in computer aided design and geo-data applications, a database system needs an index mechanism that will help it retrieve data items quickly according to their spatial locations However, traditional indexing methods are not well suited to data objects of non-zero size located m multi-dimensional spaces In this paper we describe a dynamic index structure called an R-tree which meets this need, and give algorithms for searching and updating it. We present the results of a series of tests which indicate that the structure performs well, and conclude that it is useful for current database systems in spatial applications}
+      \field{issn}{0163-5808}
+      \field{journaltitle}{SIGMOD Rec.}
+      \field{month}{6}
+      \field{number}{2}
+      \field{title}{R-trees: a dynamic index structure for spatial searching}
+      \field{volume}{14}
+      \field{year}{1984}
+      \field{pages}{47\bibrangedash 57}
+      \range{pages}{11}
+      \verb{doi}
+      \verb 10.1145/971697.602266
+      \endverb
+      \verb{urlraw}
+      \verb https://doi.org/10.1145/971697.602266
+      \endverb
+      \verb{url}
+      \verb https://doi.org/10.1145/971697.602266
+      \endverb
+    \endentry
+    \entry{KamelFaloutsos1994}{inproceedings}{}{}
+      \name{author}{2}{}{%
+        {{hash=4b46bb7f572711155973c0a70c30d99d}{%
+           family={Kamel},
+           familyi={K\bibinitperiod},
+           given={Ibrahim},
+           giveni={I\bibinitperiod}}}%
+        {{hash=976e034dd29cfc47640ae45c16d21a9d}{%
+           family={Faloutsos},
+           familyi={F\bibinitperiod},
+           given={Christos},
+           giveni={C\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {Morgan Kaufmann}%
+      }
+      \strng{namehash}{6df42ba60d53b7305a4ce9fe1f95b086}
+      \strng{fullhash}{6df42ba60d53b7305a4ce9fe1f95b086}
+      \strng{fullhashraw}{6df42ba60d53b7305a4ce9fe1f95b086}
+      \strng{bibnamehash}{6df42ba60d53b7305a4ce9fe1f95b086}
+      \strng{authorbibnamehash}{6df42ba60d53b7305a4ce9fe1f95b086}
+      \strng{authornamehash}{6df42ba60d53b7305a4ce9fe1f95b086}
+      \strng{authorfullhash}{6df42ba60d53b7305a4ce9fe1f95b086}
+      \strng{authorfullhashraw}{6df42ba60d53b7305a4ce9fe1f95b086}
+      \field{labelalpha}{KF94}
+      \field{sortinit}{K}
+      \field{sortinithash}{c02bf6bff1c488450c352b40f5d853ab}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Proceedings of the 20th International Conference on Very Large Data Bases (VLDB)}
+      \field{title}{Hilbert R{-}Tree: An Improved R{-}Tree Using Fractals}
+      \field{year}{1994}
+      \field{pages}{500\bibrangedash 509}
+      \range{pages}{10}
+      \verb{urlraw}
+      \verb https://www.vldb.org/conf/1994/P500.PDF
+      \endverb
+      \verb{url}
+      \verb https://www.vldb.org/conf/1994/P500.PDF
+      \endverb
+    \endentry
+    \entry{Leutenegger1997}{inproceedings}{}{}
+      \name{author}{3}{}{%
+        {{hash=f6fd942e6ec9f8454065a4e4542d3e75}{%
+           family={Leutenegger},
+           familyi={L\bibinitperiod},
+           given={Scott\bibnamedelima T.},
+           giveni={S\bibinitperiod\bibinitdelim T\bibinitperiod}}}%
+        {{hash=b76111640135c7ace94efc87be3f4312}{%
+           family={López},
+           familyi={L\bibinitperiod},
+           given={Mario\bibnamedelima A.},
+           giveni={M\bibinitperiod\bibinitdelim A\bibinitperiod}}}%
+        {{hash=7965935cefcf937ffbc2367cdf3d9d77}{%
+           family={Edgington},
+           familyi={E\bibinitperiod},
+           given={Jeffrey},
+           giveni={J\bibinitperiod}}}%
+      }
+      \strng{namehash}{c0d3488ccbd1b4ac52664ad5a81ea1d3}
+      \strng{fullhash}{c0d3488ccbd1b4ac52664ad5a81ea1d3}
+      \strng{fullhashraw}{c0d3488ccbd1b4ac52664ad5a81ea1d3}
+      \strng{bibnamehash}{c0d3488ccbd1b4ac52664ad5a81ea1d3}
+      \strng{authorbibnamehash}{c0d3488ccbd1b4ac52664ad5a81ea1d3}
+      \strng{authornamehash}{c0d3488ccbd1b4ac52664ad5a81ea1d3}
+      \strng{authorfullhash}{c0d3488ccbd1b4ac52664ad5a81ea1d3}
+      \strng{authorfullhashraw}{c0d3488ccbd1b4ac52664ad5a81ea1d3}
+      \field{labelalpha}{LLE97}
+      \field{sortinit}{L}
+      \field{sortinithash}{7c47d417cecb1f4bd38d1825c427a61a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Proceedings of the 13th IEEE International Conference on Data Engineering (ICDE)}
+      \field{title}{STR: A Simple and Efficient Algorithm for R{-}Tree Packing}
+      \field{year}{1997}
+      \verb{doi}
+      \verb 10.1109/ICDE.1997.582015
+      \endverb
+      \verb{urlraw}
+      \verb https://apps.dtic.mil/sti/tr/pdf/ADA324493.pdf
+      \endverb
+      \verb{url}
+      \verb https://apps.dtic.mil/sti/tr/pdf/ADA324493.pdf
+      \endverb
+    \endentry
+    \entry{Lloyd1982}{article}{}{}
+      \name{author}{1}{}{%
+        {{hash=e6326ee35fdec69f1c1ef364c98e6216}{%
+           family={Lloyd},
+           familyi={L\bibinitperiod},
+           given={S.},
+           giveni={S\bibinitperiod}}}%
+      }
+      \strng{namehash}{e6326ee35fdec69f1c1ef364c98e6216}
+      \strng{fullhash}{e6326ee35fdec69f1c1ef364c98e6216}
+      \strng{fullhashraw}{e6326ee35fdec69f1c1ef364c98e6216}
+      \strng{bibnamehash}{e6326ee35fdec69f1c1ef364c98e6216}
+      \strng{authorbibnamehash}{e6326ee35fdec69f1c1ef364c98e6216}
+      \strng{authornamehash}{e6326ee35fdec69f1c1ef364c98e6216}
+      \strng{authorfullhash}{e6326ee35fdec69f1c1ef364c98e6216}
+      \strng{authorfullhashraw}{e6326ee35fdec69f1c1ef364c98e6216}
+      \field{labelalpha}{Llo82}
+      \field{sortinit}{L}
+      \field{sortinithash}{7c47d417cecb1f4bd38d1825c427a61a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{IEEE Transactions on Information Theory}
+      \field{number}{2}
+      \field{title}{Least squares quantization in PCM}
+      \field{volume}{28}
+      \field{year}{1982}
+      \field{pages}{129\bibrangedash 137}
+      \range{pages}{9}
+      \verb{doi}
+      \verb 10.1109/TIT.1982.1056489
+      \endverb
+      \keyw{Noise;Quantization (signal);Voltage;Receivers;Pulse modulation;Sufficient conditions;Stochastic processes;Probabilistic logic;Urban areas;Q measurement}
+    \endentry
+    \entry{MacQueen1967SomeMF}{inproceedings}{}{}
+      \name{author}{1}{}{%
+        {{hash=0a89c4966206844523ff4c8e6a12c281}{%
+           family={MacQueen},
+           familyi={M\bibinitperiod},
+           given={J.},
+           giveni={J\bibinitperiod}}}%
+      }
+      \strng{namehash}{0a89c4966206844523ff4c8e6a12c281}
+      \strng{fullhash}{0a89c4966206844523ff4c8e6a12c281}
+      \strng{fullhashraw}{0a89c4966206844523ff4c8e6a12c281}
+      \strng{bibnamehash}{0a89c4966206844523ff4c8e6a12c281}
+      \strng{authorbibnamehash}{0a89c4966206844523ff4c8e6a12c281}
+      \strng{authornamehash}{0a89c4966206844523ff4c8e6a12c281}
+      \strng{authorfullhash}{0a89c4966206844523ff4c8e6a12c281}
+      \strng{authorfullhashraw}{0a89c4966206844523ff4c8e6a12c281}
+      \field{labelalpha}{Mac67}
+      \field{sortinit}{M}
+      \field{sortinithash}{4625c616857f13d17ce56f7d4f97d451}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Some methods for classification and analysis of multivariate observations}
+      \field{year}{1967}
+      \verb{urlraw}
+      \verb https://api.semanticscholar.org/CorpusID:6278891
+      \endverb
+      \verb{url}
+      \verb https://api.semanticscholar.org/CorpusID:6278891
+      \endverb
+    \endentry
+    \entry{Roussopoulos1995}{inproceedings}{}{}
+      \name{author}{3}{}{%
+        {{hash=2f3ea04fff0faa629ce0d81ee5ef7b59}{%
+           family={Roussopoulos},
+           familyi={R\bibinitperiod},
+           given={Nick},
+           giveni={N\bibinitperiod}}}%
+        {{hash=9f4873c30e3443a00aa4c72510d767ee}{%
+           family={Kelley},
+           familyi={K\bibinitperiod},
+           given={Stephen},
+           giveni={S\bibinitperiod}}}%
+        {{hash=de2ae29990e69983c61459de93cc410f}{%
+           family={Vincent},
+           familyi={V\bibinitperiod},
+           given={Frédéric},
+           giveni={F\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {New York, NY, USA}%
+      }
+      \list{publisher}{1}{%
+        {Association for Computing Machinery}%
+      }
+      \strng{namehash}{c495591499266fe8a4139a6cdd9cf421}
+      \strng{fullhash}{c495591499266fe8a4139a6cdd9cf421}
+      \strng{fullhashraw}{c495591499266fe8a4139a6cdd9cf421}
+      \strng{bibnamehash}{c495591499266fe8a4139a6cdd9cf421}
+      \strng{authorbibnamehash}{c495591499266fe8a4139a6cdd9cf421}
+      \strng{authornamehash}{c495591499266fe8a4139a6cdd9cf421}
+      \strng{authorfullhash}{c495591499266fe8a4139a6cdd9cf421}
+      \strng{authorfullhashraw}{c495591499266fe8a4139a6cdd9cf421}
+      \field{labelalpha}{RKV95}
+      \field{sortinit}{R}
+      \field{sortinithash}{5e1c39a9d46ffb6bebd8f801023a9486}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{A frequently encountered type of query in Geographic Information Systems is to find the k nearest neighbor objects to a given point in space. Processing such queries requires substantially different search algorithms than those for location or range queries. In this paper we present an efficient branch-and-bound R-tree traversal algorithm to find the nearest neighbor object to a point, and then generalize it to finding the k nearest neighbors. We also discuss metrics for an optimistic and a pessimistic search ordering strategy as well as for pruning. Finally, we present the results of several experiments obtained using the implementation of our algorithm and examine the behavior of the metrics and the scalability of the algorithm.}
+      \field{issn}{0163-5808}
+      \field{journaltitle}{SIGMOD Rec.}
+      \field{month}{5}
+      \field{number}{2}
+      \field{title}{Nearest neighbor queries}
+      \field{volume}{24}
+      \field{year}{1995}
+      \field{pages}{71\bibrangedash 79}
+      \range{pages}{9}
+      \verb{doi}
+      \verb 10.1145/568271.223794
+      \endverb
+      \verb{urlraw}
+      \verb https://doi.org/10.1145/568271.223794
+      \endverb
+      \verb{url}
+      \verb https://doi.org/10.1145/568271.223794
+      \endverb
+    \endentry
+    \entry{YangSIGMOD2023}{inproceedings}{}{}
+      \name{author}{2}{}{%
+        {{hash=3b1132a9e4235bd68a6114e3d82093c3}{%
+           family={Yang},
+           familyi={Y\bibinitperiod},
+           given={Jieming},
+           giveni={J\bibinitperiod}}}%
+        {{hash=a261f3167350d9aac38a1ec2c2624662}{%
+           family={Cong},
+           familyi={C\bibinitperiod},
+           given={Gao},
+           giveni={G\bibinitperiod}}}%
+      }
+      \strng{namehash}{9e87ee03f2b2b497aa56fa771ca9d195}
+      \strng{fullhash}{9e87ee03f2b2b497aa56fa771ca9d195}
+      \strng{fullhashraw}{9e87ee03f2b2b497aa56fa771ca9d195}
+      \strng{bibnamehash}{9e87ee03f2b2b497aa56fa771ca9d195}
+      \strng{authorbibnamehash}{9e87ee03f2b2b497aa56fa771ca9d195}
+      \strng{authornamehash}{9e87ee03f2b2b497aa56fa771ca9d195}
+      \strng{authorfullhash}{9e87ee03f2b2b497aa56fa771ca9d195}
+      \strng{authorfullhashraw}{9e87ee03f2b2b497aa56fa771ca9d195}
+      \field{labelalpha}{YC23}
+      \field{sortinit}{Y}
+      \field{sortinithash}{fd67ad5a9ef0f7456bdd9aab10fe1495}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Proceedings of the 2023 ACM SIGMOD International Conference on Management of Data}
+      \field{title}{PLATON: Top{-}down R{-}tree Packing with Learned Partition Policy}
+      \field{year}{2023}
+      \verb{doi}
+      \verb 10.1145/3626742
+      \endverb
+      \verb{urlraw}
+      \verb https://dl.acm.org/doi/10.1145/3626742
+      \endverb
+      \verb{url}
+      \verb https://dl.acm.org/doi/10.1145/3626742
+      \endverb
+    \endentry
+  \enddatalist
+\endrefsection
+\endinput
+

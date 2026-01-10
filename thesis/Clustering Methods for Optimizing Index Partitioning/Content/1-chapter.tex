@@ -1,0 +1,38 @@
+
+\chapter{Introduction}
+The first chapter introduces the motivation, problem statement, goals, and contributions of this thesis.
+It also provides an overview of the structure of the thesis.
+\section{Motivation}
+With the continuous growth of digital data sets, the efficient organization of data becomes more and more important. 
+Especially for spatial data, the underlying data structure is crucial when it comes to performance.
+Spatial data refers to multi-dimensional data. For example, data in geographic information systems, navigation applications, or machine learning use cases.
+Spatial index structures, like R-Trees, are widely used for that, but they reach their limits when dealing with large amounts of data and uneven data distributions.
+Overlapping and unbalanced partitions mean that queries have to pass through an unnecessary number of nodes in an R-Tree index, which increases both runtime and I/O costs.
+\newline\newline
+A promising way to avoid these problems is a form of preprocessing the data before indexing it.
+We can reach this through clustering to create partitions that are more compact, balanced, and better separated from each other.
+
+\section{Problem Statement}
+The main problem with R-Trees lies in the way data is inserted into the index.
+The R-Tree heuristic often produces large, uneven data partitions with big spatial overlaps. These overlaps lead to inefficiencies during querying, as multiple branches of the tree must be traversed.
+\newline\newline
+The aim of this thesis is therefore to develop a method that creates more optimized partitionings in R-Trees.
+\newline\newline
+The central question is: How can clustering methods such as $k$-Means be used and extended to achieve more efficient partitioning for R-Trees?
+
+\section{Goals and Contributions}
+The main objective of this thesis is the development of an algorithm to optimize clusters regarding size constraints and overlap of bounding boxes. 
+Whereas the main contributions of this work are:
+\begin{itemize}
+  \item The combination of a $k$-Means approach with a subsequent optimization process.
+  \item The integration of this process into the R-Tree index building process.
+  \item A comprehensive experimental evaluation based on 1080 test cases.
+\end{itemize}
+
+\section{Structure of the Thesis}
+The structure of this thesis is as follows:
+Chapter 2 introduces the basic concepts of this thesis, including data, clustering, bounding boxes, and R-Trees.
+Chapter 3 provides an overview of related work. Chapter 4 describes the problem context.
+Chapters 5 and 6 first explain baseline clustering with $k$-Means and then the developed optimization algorithm to perform post-processing.
+Chapter 7 shows the integration of the approach into the structure of R-Trees.
+Chapter 8 presents the experiments and their results. Finally, Chapter 9 summarizes the key findings and provides an outlook on possible extensions.

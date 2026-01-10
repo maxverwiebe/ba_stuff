@@ -1,0 +1,298 @@
+% nötige Basics, um später alles nachzuvollziehen
+
+
+\chapter{Fundamentals}
+In this chapter, we introduce the fundamental concepts and definitions to understand this thesis.
+We look at the data, clustering, bounding boxes, spatial indexing, R-Trees, and queries.
+\section{Data}
+The term \emph{data} refers to a collection of information that can be processed and analyzed by a computer.
+Data can be in various forms, such as numbers, text, images, or audio.
+A \emph{dataset} is a collection of data, often organized in a structured way.
+\newline\newline
+We consider a dataset $X=\{x_1,\dots,x_n\}\subset\mathbb{R}^d$ where each point $x_i=(x_{i1},\dots,x_{id})$ represents data with $d$ numerical features.
+\newline\newline
+\paragraph{Note on numerical features.}
+In this thesis, we focus on numerical features, which are continuous values that can be measured and compared. Categorical features, which represent discrete categories or labels, are not considered in this work.
+In practice, categorical features are often transformed into numerical representations. For example, one-hot encoding or vector embeddings can be used for that.
+
+\paragraph{Distance metric.}
+Unless stated otherwise, we use the Euclidean distance $\|x-y\|_2$. The choice of distance metric can depend on the application (for example, Manhattan distance).
+
+\section{Clustering}
+Clustering is a method of unsupervised machine learning that aims to divide a given dataset into groups, known as clusters, which are disjoint.
+The special feature of clustering is that there are no predefined labels in the dataset to create such clusters. The used algorithm therefore learns completely independently and unsupervised.
+Overall, the target goal of clustering is to group objects within a cluster so that they are as similar as possible to each other while being as dissimilar as possible to objects in other clusters.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Images/clustering/1.png}
+    \caption{Example clustering of data points in 3D space. The algorithm learnt, that the points within each cluster are more similar to each other than to those in other clusters.}
+    \label{fig:clustering_example}
+\end{figure}
+
+In Figure \ref{fig:clustering_example}, the data points have been grouped into clusters, which are represented by the colored circles.
+The three dimensions represent the three features of the data points, which are used to determine the similarity between them.
+\newline
+A cluster is therefore a set of data points in which the points are similar to each other.
+The similarity can be defined in different ways, but often it is based on the distance between points.
+\newline
+Clustering methods are used in many areas in practice. It is widespread in marketing for customer segmentation and anomaly detection in financial transactions or network traffic.
+
+\subsection{k-Means}
+The $k$-Means algorithm is one of the most common clustering methods. It was introduced in 1967 by MacQueen. \cite{MacQueen1967SomeMF}
+Originally, the term $k$-Means refers to the underlying optimization problem of partitioning a set of $n$ data points into $k$ clusters in such a way that the points within each cluster are as similar as possible.
+Formally, this problem is known to be NP-hard, even for $k=2$ in high-dimensional spaces.
+\newline\newline
+Lloyd's algorithm is a popular method for solving the $k$-Means problem. It iteratively assigns each datapoint to the nearest cluster centroid and updates the centroids until convergence. \cite{Lloyd1982}
+\newline\newline
+Given:
+\begin{itemize}
+    \item A dataset $X = \{x_1, x_2, \dots, x_n\} \subset \mathbb{R}^d$
+    \item A number of clusters $k \in \mathbb{N}$
+    \item An assignment of points to clusters $C = \{C_1, C_2, \dots, C_k\}$, where $C_i \subset X$
+\end{itemize}
+
+The objective is to find a partition $C$ that minimizes the following function:
+\begin{equation}
+    L = \sum_{i=1}^{k} \sum_{x \in C_i} \| x - \mu_i \|^2
+\end{equation}
+
+Where:
+\begin{itemize}
+    \item $\mu_i = \frac{1}{|C_i|} \sum_{x \in C_i} x$ is the centroid of cluster $C_i$
+    \item $\| x - \mu_i \|^2$ is the squared Euclidean distance from point $x$ to its centroid
+\end{itemize}
+
+\begin{algorithm}[H]
+\caption{Lloyd's Algorithm for $k$-Means Clustering}
+\begin{algorithmic}[1]
+\Require Dataset $X = \{x_1, x_2, \dots, x_n\} \subset \mathbb{R}^d$, number of clusters $k$
+\Ensure Cluster assignments and centroids $\mu_1, \dots, \mu_k$
+\State Initialize centroids $\mu_1, \dots, \mu_k$ (e.g., randomly)
+\Repeat
+    \For{each data point $x_i \in X$}
+        \State Assign $x_i$ to nearest cluster:
+        \[
+            c_i \gets \arg\min_j \| x_i - \mu_j \|^2
+        \]
+    \EndFor
+    \For{each cluster $j = 1$ to $k$}
+        \State Update centroid:
+        \[
+            \mu_j \gets \frac{1}{|C_j|} \sum_{x_i \in C_j} x_i
+        \]
+    \EndFor
+\Until{convergence}
+\end{algorithmic}
+\end{algorithm}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Images/kmeans_example.png}
+    \caption{Example of $k$-Means with k=4. Loss function converges at interation 4 and 5, so the algorithm would stop there.}
+    \label{fig:kmeans_example}
+\end{figure}
+
+In Figure \ref{fig:kmeans_example}, the $k$-Means algorithm is illustrated with $k=4$ clusters.
+The algorithm starts with random centroids (iteration 0) and iteratively refines the clusters and centroids until convergence (iterations 4 and 5).
+
+\subsection{Bounding Boxes}
+Given a cluster $S\subset\mathbb{R}^d$, its Minimum Bounding Rectangle (MBR) is
+\[
+\mathrm{MBR}(S)=[\ell_1,u_1]\times\cdots\times[\ell_d,u_d],
+\quad
+\ell_k=\min_{x\in S}x_k,\; u_k=\max_{x\in S}x_k.
+\]
+
+\begin{wrapfigure}{r}{0.5\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{Images/bboxes.png}
+    \caption{Example of bounding boxes in 2D space.}
+    \label{fig:bboxes}
+\end{wrapfigure}
+
+\paragraph{Quality measures.}
+For $d=2$, the area and perimeter are
+\[
+\mathrm{area}(R)=(u_1-\ell_1)(u_2-\ell_2),\qquad
+\]
+For two MBRs $R$ and $R'$, the overlap area is
+\[
+\mathrm{overlap}(R,R')=\prod_{k=1}^2 \max\bigl(0,\;\min(u_k,u'_k)-\max(\ell_k,\ell'_k)\bigr).
+\]
+\newline
+Figure \ref{fig:bboxes} shows an example of bounding boxes in 2D space.
+The MBRs enclose all points of each cluster.
+
+\section{Spatial Indexing}
+Indexing refers to the process of organizing and structuring a dataset to make it easier to use it and find data in it.
+It often involves the usage of complex data structures.
+\newline\newline
+Spatial indexing is used to index multi-dimensional information. These information objects can be rectangles, 
+3D position vectors, or any arbitrary high-dimensional data.
+\newline\newline
+In such an index, data points are organized in a way that enables efficient spatial queries like:
+\begin{itemize}
+\item Simple point queries: Finding information at a given position
+\item Range queries: Finding all information within a specified region
+\item Nearest neighbor queries: Finding the closest information objects to a given location
+\end{itemize}
+There exist multiple data structures for spatial indexing, with R-Trees being one of the most popular.
+
+\subsection{R-Tree}
+The R-Tree is a tree-based approach for spatial indexing. It is designed for efficient multi-dimensional spatial data. \cite{R-Tree-Guttman-1984}
+It was introduced in 1984 by Antonin Guttman and quickly became one of the most widely used indexes, especially in databases.
+\newline
+R-Trees are balanced tree structures. 
+Each node represents a minimum bounding rectangle (MBR) of all its child nodes. The leaf nodes contain pointers to the actual spatial data objects.
+\newline
+It uses these two main arguments:
+\begin{itemize}
+\item $M$ = Maximum points per internal node
+\item $m$ = Minimum points per internal node where $m \leq \frac{M}{2}$
+\end{itemize}
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Images/R-Tree/rtree_1.png}
+    \caption{Spatial data with R-Tree indexing. ($M$ = 4; $m$ = 2)}
+    \label{fig:rtree_example}
+\end{figure}
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Images/R-Tree/rtree_2_tree.png}
+    \caption{R-Tree representation of spatial data. ($M$ = 4; $m$ = 2)}
+    \label{fig:rtree_example_tree}
+\end{figure}
+One of the most common applications are range queries and nearest-neighbor queries. The R-Tree allows large parts of the tree,
+that don't overlap with the query range to be pruned. This significantly improves the query performance compared to linear scans.
+That's the reason why R-Trees are so popular in data management and sciences.
+\newline
+Typical (internal) operations of an R-Tree are:
+\begin{itemize}
+\item Insertion: The R-Tree inserts an object as leaf node into the MBR, which leads to the least enlargement.
+\item Node overflow: If the parameter $M$ is exceeded for a node, it is split into two nodes, using a split heuristic (linear, quadratic...).
+\item Deletion: On deletion the R-Tree structure might need to be rebalanced, depending on $m$.
+\end{itemize}
+
+Figures \ref{fig:rtree_example} and \ref{fig:rtree_example_tree} show an example of spatial data with R-Tree indexing and its tree representation.
+\newline
+An R-Tree is usually built with the following split heuristics.
+
+\paragraph{Linear Split}
+This split heuristic selects two entries as seeds that are the most distant from each other.
+The remaining entries are then assigned to the two seeds, based on which seed's MBR enlargement is smaller.
+This method is simple and fast but can lead to unbalanced trees with large MBRs. The runtime complexity is $O(n)$.
+
+\paragraph{Quadratic Split}
+This method is more complex. The seeds are selected based on the two entries that maximize the area of the MBR.
+In other words, the two seeds would waste the most space if placed in the same MBR.
+The remaining entries are then assigned to the two seeds, based on which seed's MBR enlargement is smaller.
+This method leads to more balanced trees but is more complex and slower than the linear split. The runtime complexity is $O(n^2)$.
+\paragraph{R*-Tree}
+The R*-Tree is not just a single heuristic but a whole extension of the R-Tree based on Guttman's original model.
+It uses a technique called "reinsertion" / "repeated insertion" to improve the quality of the tree. On construction, it tries to insert entries multiple times to find the best possible position.
+This leads to better clustering and therefore to better MBRs with less overlap.
+
+\section{Queries}
+Queries in spatial indexes are used to retrieve data based on spatial relationships.
+\newline\newline
+A naive approach would be to calculate the distance from the query point to all points. 
+This would be very expensive for each query, especially for large datasets, because it is in $O(n)$.
+R-Trees allow pruning of large parts of the search area, which leads to much faster queries.
+
+\subsection{Nearest Neighbor Queries ($k$NN)}
+Nearest Neighbor Queries ($k$NN) are used to find the $k$ closest points to a given query point, where $k \in \mathbb{N}$.
+The idea of the $k$NN algorithm was introduced by Cover and Hart in 1967. \cite{CoverHart1967}
+This thesis works with the $k$NN-Index-APL algorithm, which is a best-first search algorithm for $k$NN queries on R-Trees. It was found 1995 by Roussopoulos, Kelley and Vincent. \cite{Roussopoulos1995}
+\newline
+There are many metrics for deciding how close two points are in space. The most common ones are:
+\begin{itemize}
+    \item Euclidean distance: The straight-line distance between two points in space.
+    \item Manhattan distance: The sum of the absolute differences of the coordinates.
+\end{itemize}
+The choice of metric depends on the application and the data.
+\newline
+It works by using a spatial index to quickly eliminate large areas of the search space that do not contain any potential nearest neighbors.
+
+\begin{algorithm}
+\caption{kNN-Index-APL($pa, q, k$) Best-First Search}
+\begin{algorithmic}[1]
+\Require Spatial index root node $pa$, query point $q$, number of nearest neighbors $k$
+\Ensure Result set $R$ containing the $k$ nearest neighbors of $q$
+\State Initialize priority queue $Q$ and insert $pa$ with key $\text{MINDIST}(pa, q)$
+\State Initialize result set $R \gets \emptyset$
+\Repeat
+    \State Remove entry $e$ from $Q$ with smallest $\text{MINDIST}(e, q)$
+    \If{$e$ is an internal node}
+        \For{each child entry $f$ of $e$}
+            \State Insert $f$ into $Q$ with key $\text{MINDIST}(f, q)$
+        \EndFor
+    \ElsIf{$e$ is a data object}
+        \State Add $e$ to $R$
+        \If{$|R| > k$}
+            \State Remove the farthest object from $R$
+        \EndIf
+    \EndIf
+\Until{$|R| = k$ \textbf{and} $\min\limits_{g \in Q} \text{MINDIST}(g, q) \ge \text{DIST}_{\max}(R, q)$}
+\end{algorithmic}
+\end{algorithm}
+
+
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Images/R-Tree/knn_1.png}
+    \caption{Example kNN-Index-APL with k=3 (1/5)}
+    \label{fig:knn_example_1}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Images/R-Tree/knn_2.png}
+    \caption{Example kNN-Index-APL with k=3 (2/5)}
+    \label{fig:knn_example_2}
+\end{figure}
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Images/R-Tree/knn_3.png}
+    \caption{Example kNN-Index-APL with k=3 (3/5)}
+    \label{fig:knn_example_3}
+\end{figure}
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Images/R-Tree/knn_4.png}
+    \caption{Example kNN-Index-APL with k=3 (4/5)}
+    \label{fig:knn_example_4}
+\end{figure}
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Images/R-Tree/knn_5.png}
+    \caption{Example kNN-Index-APL with k=3 (5/5)}
+    \label{fig:knn_example_5}
+\end{figure}
+
+Figures \ref{fig:knn_example_1}, \ref{fig:knn_example_2}, \ref{fig:knn_example_3}, \ref{fig:knn_example_4} and \ref{fig:knn_example_5} show an example of a kNN query with $k=3$ on an R-Tree.
+We start with the root node in the priority queue (Figure \ref{fig:knn_example_1}).
+We then iteratively explore the nodes with the smallest minimum distance to the query point.
+We extract the root node and insert its children into the priority queue (Figure \ref{fig:knn_example_2}) sorted by distance to the query point.
+Next, we extract the node with the smallest distance (Figure \ref{fig:knn_example_3}) and insert and sort its children into the priority queue (Figure \ref{fig:knn_example_3}).
+In Figure \ref{fig:knn_example_4}, after another extraction, we find leaf nodes (P1, P2, P3), which we add to our priority queue.
+Finally, in Figure \ref{fig:knn_example_5}, we pop the first three elements from the priority queue, which are our $k=3$ nearest neighbors.
+We insert them into our result set and return it.
+The pruning distance is the distance to the farthest point in our result set (P3).
+Hence, no other node in the priority queue can be closer to the query point than P3 (pruning distance), the algorithm terminates.
+
+
+\section{Evaluation of Spatial Indexes}
+One of the core concepts of a Spatial Index is the fast indexing of data, which means that the index structure should be able to process the above-introduced queries fast.
+Therefore, our most important metric for evaluating the performance of a spatial index, or more precisely an R-Tree, is how quickly it finds data.
+
+\subsection{Visited Nodes}
+We test the R-Tree performance by counting the number of nodes visited during a kNN query.
+\newline
+For a query point $q\in\mathbb{R}^d$ and $k\in\mathbb{N}$ and an R-Tree index $I$ , let
+\[
+V_I(q)\in\mathbb{N}
+\]
+be the \emph{number of visited nodes} during a $k$NN query on the current index.
+We define the \emph{number of visited nodes} as the traversal cost needed to reach from the root to the $k$NN results (leafs) in the tree structure for $q$.

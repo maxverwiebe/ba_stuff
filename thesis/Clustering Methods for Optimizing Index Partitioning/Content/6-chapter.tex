@@ -1,0 +1,308 @@
+\chapter{Post-Processing Cluster Optimization Algorithm}
+Now that we have a basic clustering with $k$-Means, we want to improve the clusters regarding size constraints and overlap of bounding boxes.
+\section{Goal and Setting}
+We start with a set of $N$ points $X \in \mathbb{R}^d$ and baseline cluster labels from $k$-Means.
+Our goal is to \emph{rebalance} these clusters so that every cluster obeys these capacity constraints
+\[
+\texttt{MIN\_POINTS} \;\le\; |C_i| \;\le\; \texttt{MAX\_POINTS},
+\]
+while also \emph{reducing overlap} between their axis-aligned minimum bounding boxes (MBRs). This aligns clusters with physical data pages (leaves) and improves R-Tree indexing.
+
+\paragraph{Inputs.}
+Points $X$, initial cluster labels, \texttt{MAX\_POINTS} (leaf capacity), optional \texttt{MIN\_POINTS}, random seed.
+
+\paragraph{Outputs.}
+New labels of balanced clusters.
+
+\section{Design Principles}
+\begin{itemize}
+  \item \textbf{Size constraints.} Force cluster sizes to be within $[\texttt{MIN\_POINTS}, \texttt{MAX\_POINTS}]$ to match leaf capacity of the R-Tree index.
+  \item \textbf{MBR overlap minimization.} Splits are axis-disjoint along the chosen axis, and merges choose the neighbor cluster with the smallest MBR.
+  \item \textbf{Deterministic and fast.} Fully vectorized for performance with fixed seeds for reproducibility.
+  \item \textbf{Any dimension.} All steps work in $\mathbb{R}^d$.
+\end{itemize}
+
+\section{Algorithm Overview}
+The algorithm has two phases. Phase 1 deals with $\texttt{MAX\_POINTS}$ violations, while Phase 2 handles $\texttt{MIN\_POINTS}$ constraints for each cluster.
+
+\subsection{Phase 1: Split Oversized Clusters}
+Oversized clusters ($|C|>\texttt{MAX\_POINTS}$) are split recursively:
+\begin{enumerate}
+  \item Choose the axis with the largest span (max–min).
+  \item Split at the median along that axis.
+  \item Check children and split them until each part has $\le\texttt{MAX\_POINTS}$ points.
+\end{enumerate}
+This guarantees the two child clusters are \emph{separated along the split axis}, which immediately reduces overlap of their MBRs.
+If there is no span, because of, for example, all points being equal, we fall back to a random split to ensure progress of the algorithm.
+
+\paragraph{Note on KD-split.} This splitting algorithm is inspired by KD-Trees. KD-Trees recursively partition data along the longest axis, which is efficient for uniform distributions.
+Here, we use it to ensure that clusters are split into compact, disjoint partitions that fit into a single data page.
+A similar process was already researched in 2008 by Arge et al in \emph{The Priority R-Tree: A Practically Efficient and Worst-Case-Optimal R-Tree}. \cite{PriotrityR-Tree2008} 
+
+Now we go into a more detailed explanation.
+\newline
+\paragraph{When do we split?}
+A cluster $C$ is oversized if $|C|>\texttt{MAX\_POINTS}$. 
+Such a cluster must be split into smaller parts until every part fits.
+
+\paragraph{How do we choose the split?}
+Let the points of $C$ be ${x^{(1)},\dots,x^{(m)}}\subset\mathbb{R}^d$.
+For each dimension/axis $k\in{1,\dots,d}$ compute the \emph{span}
+
+$$
+\mathrm{span}_k(C) \;=\; \max_i x^{(i)}_k \;-\; \min_i x^{(i)}_k.
+$$
+
+Choose the axis with the largest span:
+
+$$
+s^\star \;=\; \max\bigl\{\mathrm{span}_k(C)\;:\;k=1,\dots,d\bigr\},\qquad
+k^\star \;\in\; \bigl\{k:\mathrm{span}_k(C)=s^\star\bigr\}.
+$$
+
+Now split $C$ at the \emph{median} value $m^\star$ of the $k^\star$-dimension:
+
+$$
+m^\star \;=\; \mathrm{median}\bigl\{x^{(i)}_{k^\star}\;:\;x^{(i)}\in C\bigr\}.
+$$
+
+Form two children
+
+$$
+C_L=\{x\in C : x_{k^\star}\le m^\star\},\qquad
+C_R=\{x\in C : x_{k^\star}> m^\star\}.
+$$
+
+\paragraph{Result}
+For the two new clusters $C_L$ and $C_R$ we get $MBR(C_L)$ and $MBR(C_R)$ that are
+\emph{disjoint along the split axis} $k^\star$. This immediately reduces overlap on axis $k^\star$ and can also shrink the total volume of the MBR.
+
+\paragraph{What happens if the cluster is still oversized?}
+If a cluster is still oversized after the split, we push it back into the queue of clusters still to be split.
+Eventually the algorithm will pop the cluster and perform a split again.
+
+\paragraph{Edgecase zero-span}
+If $\max_i x^{(i)}_k-\min_i x^{(i)}_k=0$ applies to all dimensions / axes $k$, we have a special case.
+It would mean that all points in $C$ are numerically equal.
+This leads to a median split along any axis $k$ to be wrong, as it would not create any meaningful partitioning.
+As a fallback, we shuffle the points in $C$ randomly into two partitions of the sizes $\lfloor m/2\rfloor$ and $\lceil m/2\rceil$ (with $m=|C|$).
+So our two cluster partitions look like this:
+$$
+|C_L|=\left\lfloor \frac{m}{2}\right\rfloor,\qquad
+|C_R|=\left\lceil \frac{m}{2}\right\rceil,
+$$
+A tradeoff is that $MBR(C_L)$ and $MBR(C_R)$ may almost be equal.
+But the main goal of the algorithm is to satisfy \texttt{MAX\_POINTS} and \texttt{MIN\_POINTS}, not to optimize the overlap of every single partitioned cluster.
+Still, most clusters' MBRs will still be disjoint along the split axis, as this is just a super rare edge case.
+
+\subsection{Phase 2: Merge Undersized Clusters}
+If \texttt{MIN\_POINTS} is set, undersized clusters are greedily merged into a neighbour that minimally increases the combined MBR:
+After a merge, capacities are checked again. If a merged cluster now exceeds \texttt{MAX\_POINTS}, it is queued for splitting again.
+This keeps all clusters within bounds while keeping the bounding boxes tight.
+
+\paragraph{When do we merge?}
+If $\texttt{MIN\_POINTS}$ is given, a cluster $C$ is \emph{undersized} if $|C|<\texttt{MIN\_POINTS}$. Such clusters must be merged into neighbours until all clusters satisfy the lower bound.
+
+\paragraph{Which neighbour do we choose?}
+For a given undersized cluster $C_s$ we pick the target $C_t$ that minimally enlarges the volume of the bounding box of both clusters combined $\operatorname{MBR}(C_s\cup C_t)$.
+This heuristic is chosen because it aims to keep the resulting new cluster as compact as possible, which serves as a good indicator for minimizing future overlaps with other clusters (MBRs).
+$$
+\mathrm{cost}(C_t)\;=\;\operatorname{vol}\!\bigl(\operatorname{MBR}(C_s\cup C_t)\bigr).
+$$
+
+Let
+
+$$
+c_{\min}\;=\;\min_{t\ne s}\,\mathrm{cost}(C_t).
+$$
+
+Pick any neighbour $C_t^\star$ with $\mathrm{cost}(C_t^\star)=c_{\min}$, for example.
+
+$$
+\forall\,u\ne s:\quad \mathrm{cost}(C_t^\star)\le \mathrm{cost}(C_u).
+$$
+
+If several neighbours have the same smallest cost, we pick the one with the smallest distance to the centroid of $C_s$:
+
+$$
+d_t \;=\; \bigl\|dist(C_s)-dist(C_t)\bigr\|_2
+$$
+
+After we found our target cluster $C_t^\star$, we merge $C_s$ into $C_t^\star$.
+That means we set $C_t^\star \leftarrow C_t^\star \cup C_s$ and delete label $C_s$.
+
+\paragraph{What happens if the merged cluster becomes oversized?}
+If the merged cluster $C_t^\star$ exceeds \texttt{MAX\_POINTS}, we push it back into the queue of clusters still to be split.
+
+\paragraph{What happens if the merged cluster is still undersized?}
+If the merged cluster $C_t^\star$ stays undersized, we keep it in the queue of undersized clusters.
+At some point it will be popped and merged again with a neighbour, until all clusters satisfy \texttt{MIN\_POINTS}.
+
+\section{Pseudocode}
+\begin{algorithm}[H]
+\caption{Post-Processing Cluster Optimization Algorithm}
+\begin{algorithmic}[1]
+\Require $X\in\mathbb{R}^{d}$ (points), initial labels, $\mathtt{MAX\_POINTS}$, optional $\mathtt{MIN\_POINTS}$
+\Ensure New labels, updated cluster centers/MBRs
+\State Build map \texttt{clusters: id} $\to$ \texttt{index-list}; compute $R_i$ and $\mu_i$
+\State \textbf{Queue} all clusters with $|C_i|>\mathtt{MAX\_POINTS}$
+\While{true}
+  \While{queue not empty} \Comment{Splitting oversized clusters (KD-split)}
+    \State pop cluster $C$
+    \While{$|C|>\mathtt{MAX\_POINTS}$}
+      \State get axis with maximum span; split at median into $C_L,C_R$
+      \State replace $C$ by $C_L,C_R$; update $R,\mu$; queue any child still $>\mathtt{MAX\_POINTS}$
+    \EndWhile
+  \EndWhile
+  \If{$\mathtt{MIN\_POINTS}$ is not set} \textbf{break} \EndIf
+  \If{all clusters satisfy $|C_i|\ge\mathtt{MIN\_POINTS}$} \textbf{break} \EndIf
+  \State pick smallest cluster $C_s$ \Comment{Merging undersized clusters (greedy)}
+  \State find neighbour $C_t=arg\min_{j\neq s}\operatorname{vol}(R_s\cup R_j)$ \Comment{tie: nearest centroid}
+  \State merge $C_s\to C_t$; update $R_t,\mu_t$; delete $C_s$
+  \If{$|C_t|>\mathtt{MAX\_POINTS}$} queue $C_t$ \EndIf
+\EndWhile
+\State Reindex cluster ids contiguously and return labels and centers.
+\end{algorithmic}
+\end{algorithm}
+
+\begin{figure}[htbp] % here, top, bottom, page - tries all options in this order
+    \centering
+    \includegraphics[width=1.0\textwidth]{Images/KD-algo/combined.png}
+    \caption{Example of the post-processing algorithm with $\texttt{MAX\_POINTS} = 75$ and $\texttt{MIN\_POINTS} = 25$.}
+    \label{fig:kd_algo_example}
+\end{figure}
+
+Figure \ref{fig:kd_algo_example} shows an example run of the algorithm on a synthetic dataset with $\texttt{MAX\_POINTS} = 75$ and $\texttt{MIN\_POINTS} = 25$.
+The process starts with an initial set of four clusters. One cluster is oversized because it contains too many points (n=100).
+Another cluster is undersized because it has too few points (n=15).
+\newline
+First, the algorithm addresses the oversized cluster. It is split into two smaller parts using the procedure described above.
+The split is made along the cluster's longest dimension to minimize overlap.
+\newline
+The third phase of the representation shows the result after the split operation. The single large cluster has been replaced by two new, smaller clusters.
+Now, no clusters are oversized.
+\newline
+Next, the algorithm handles the undersized cluster.
+The small cluster (n=15) is identified and merged into its best neighboring cluster.
+The arrow shows which cluster will absorb the small one.
+\newline
+In the final phase, the result after the merge operation is shown.
+All clusters now meet the size requirements (between 25 and 75 points).
+The output is a set of balanced clusters with minimized bounding box overlap.
+
+\section{Termination}
+The algorithm always terminates.
+Each split reduces the number of points of a cluster and never increases it.
+Each merge reduces the number of clusters by $1$.
+There are finitely many points and labels, so the process must stop.
+\newline\newline
+At the end every cluster $C_i$ satisfies the size constraints $\texttt{MIN\_POINTS} \;\le\; |C_i| \;\le\; \texttt{MAX\_POINTS}$.
+
+\section{Complexity and Scalability}
+Let $N$ be the number of points, $d$ the dimension, and let $B=\texttt{MAX\_POINTS}$. We assume the input comes with pre\-labels (initial clusters) from $k$-Means.
+
+\paragraph{Initialization.}
+Building the index lists and computing one bounding box and one centroid per initial cluster costs
+\[
+O(Nd)\quad\text{time},\qquad O(N + Td)\quad\text{space},
+\]
+where $T$ is the current number of clusters.
+
+\paragraph{Splitting.}
+For a cluster of size $m$, each split picks the axis by computing the span for each axis in $O(md)$ and partitions at the median in $O(m)$ (via \texttt{np.partition}). The subtree height is $\lceil \log_2(m/B)\rceil$. Therefore:
+\[
+\text{cost per cluster } = O\!\big(md\,\log (m/B)\big).
+\]
+We summarize this over all clusters (with sizes $m_c$ and $\sum_c m_c=N$):
+\[
+\sum_c O\!\big(m_c d\,\log(m_c/B)\big)\;\le\; O\!\big(Nd\,\log(N/B)\big),
+\]
+with equality in the worst case (all points start in one cluster). Therefore, splitting is \emph{near-linear} in $N$ for constant $d$ and $B$.
+
+\paragraph{Merging.}
+Let $T'$ be the number of clusters after splitting (typically $T' \approx N/B$). Each merge selects a target by looping over all other clusters and minimizing the union MBR volume. 
+This costs $O(T'd)$ per merge (union of two axis-aligned boxes is $O(d)$). The number of merges is at most $T'$, so the naive bound is
+\[
+O\!\big({T'}^{2} d\big)\quad\text{time}.
+\]
+If a merge creates a cluster that is larger than the capacity \(B\), we put that cluster back into the split queue and split it again with the same KD median rule. Each median split roughly halves the cluster size, so a cluster of size \(m\) needs at most \(\lceil \log_2(m/B)\rceil\) extra splits to get down to \(\le B\). This means any point is reassigned only a logarithmic number of times. As a result, the extra work caused by such oversize merges stays within the same overall cost as the normal splitting phase, about \(O(Nd\log(N/B))\), and the algorithm remains efficient.
+
+\paragraph{Total time.}
+Combining the phases,
+\[
+\boxed{\;\;\;T_{\text{total}} \;=\; O\!\big(Nd\big)\;+\;O\!\big(Nd\,\log(N/B)\big)\;+\;O\!\big({T'}^{2}d\big)\;\;\;}
+\]
+with $T' \approx N/B$ after splitting:
+\begin{itemize}
+  \item If $MIN\_POINTS$ is not set $\Rightarrow$ no merges $\Rightarrow$
+  \[
+  T_{\text{total}} \;=\; O\!\big(Nd\,\log(N/B)\big).
+  \]
+
+\end{itemize}
+
+\paragraph{Space complexity.}
+Storing index lists for all clusters and their geometry (MBRs, centroids) needs
+\[
+O(N) \text{ (indices)} \;+\; O(T'd) \text{ (MBRs/centroids)} \;=\; O\!\big(N + (N/B)\,d\big).
+\]
+
+\section{Example}
+\paragraph{Tiny 1D example.}
+Points: $[0,1,2,3,4,5,6,7,8,9]$, with $\texttt{MAX\_POINTS}=4$ and $\texttt{MIN\_POINTS}=3$.
+
+\emph{Phase 1 (Split).} Split at median $m^\star=4$:
+\[
+\begin{aligned}
+C_L&=\{0,1,2,3,4\}, & C_R&=\{5,6,7,8,9\}.
+\end{aligned}
+\]
+Both have $5$ points $\Rightarrow$ split again (medians: $2$ and $7$):
+\[
+\{0,1,2\},\quad \{3,4\},\quad \{5,6,7\},\quad \{8,9\}.
+\]
+Now two clusters are undersized: $\{3,4\}$ and $\{8,9\}$ (each $2<3$).
+
+\emph{Phase 2 (Merge).}
+\[
+\text{Step 1: }\{3,4\}\ \text{merge with}\ \{5,6,7\}\ \Rightarrow\ \{3,4,5,6,7\}\ (\text{size }5).
+\]
+This is oversized ($5>4$) $\Rightarrow$ split again at median $5$:
+\[
+\{3,4,5\},\quad \{6,7\}.
+\]
+\[
+\text{Step 2: }\{6,7\}\ \text{merge with}\ \{8,9\}\ \Rightarrow\ \{6,7,8,9\}\ (\text{size }4).
+\]
+
+\emph{Final clusters:}
+\[
+\{0,1,2\}\ (3),\quad \{3,4,5\}\ (3),\quad \{6,7,8,9\}\ (4).
+\]
+
+
+\section{Effect on Indexing}
+After this post-processing, cluster MBRs are smaller and overlap less, and cluster sizes fit page capacity. When these MBRs are used as R-Tree partitions, range and $k$NN queries prune more subtrees and touch fewer nodes, which shows up as fewer visited nodes and lower I/O in our experiments.
+\newline\newline
+Figure \ref{fig:kmeans_vs_opt_overview} illustrates the visual impact of the post-processing (optimization) on a dataset.
+The first image shows the data distribution, the second image shows the MBRs of the clusters produced by $k$-Means, and the third image shows the MBRs of the clusters after applying our optimization algorithm.
+
+\begin{figure}[!tbp]
+  \centering
+  \begin{minipage}[b]{0.3\textwidth}
+    \includegraphics[width=\textwidth]{Images/kmeans_vs_opt_1.png}
+    \caption{Data Distribution}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[b]{0.3\textwidth}
+    \includegraphics[width=\textwidth]{Images/kmeans_vs_opt_2.png}
+    \caption{k-Means\newline}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[b]{0.3\textwidth}
+    \includegraphics[width=\textwidth]{Images/kmeans_vs_opt_3.png}
+    \caption{Post-Processing}
+  \end{minipage}
+  \caption{Visual impact of the post-processing (optimization). With k-means, few spherical clusters inflate the axis-aligned MBRs and cause strong overlap. The optimization produces many tight boxes and clearly reduces overlap (blue MBRs).}
+  \label{fig:kmeans_vs_opt_overview}
+\end{figure}

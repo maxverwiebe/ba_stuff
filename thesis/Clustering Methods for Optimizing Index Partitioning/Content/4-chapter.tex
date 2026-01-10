@@ -1,0 +1,36 @@
+\chapter{Problem Context}
+This chapter describes the problem context of this thesis in more detail.\newline\newline
+In many applications, data is stored in large databases, which means that efficient access to this data is crucial. 
+In this context, such spatial data is often stored in spatial structures like R-Trees, which allow very efficient querying and searching.
+But in order to achieve this efficiency, the data must be partitioned in a way that the resulting clusters are small in size and have a low overlap to each other.
+R*-Trees are optimized for this purpose, but they are very expensive in dynamic scenarios, where the data is frequently updated.
+This is where the problem of partitioning arises, which is the focus of this thesis.
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Images/R-Tree/mbr_problem.png}
+    \caption{Inefficient MBRs (left) show large overlaps. Queries in the overlapping area must search through multiple subtree structures, which increases I/O and CPU time and prevents pruning. Efficient MBRs (right) minimize overlap and area, significantly reducing the number of node visits and false positives.}
+    \label{fig:rtree_dumb_example}
+\end{figure}
+\newline
+Figure \ref{fig:rtree_dumb_example} illustrates the problem of inefficient MBRs (Minimum Bounding Rectangles) in an R-Tree.
+On the left side, we see three large MBRs with significant overlap, which leads to inefficiencies during querying.
+If a query, for example a kNN query, is executed on such an R-Tree, and the query point is located in the overlapping area (marked in red) of two or more MBRs, the query must search through all MBRs that overlap with the query point.
+This means that the query must traverse all affected subtrees. This doubles (or multiplies) the number of accesses on the disk.
+Another problem with very large MBRs is that they cover a large empty space, which results in even more I/Os.
+Not to be overlooked is the fact that overlap at one level often causes overlap further down. This means the inefficiency multiplies across the whole tree height.
+
+\paragraph{Data pages and capacity.}
+Another problem occurs when we look deeper. In many systems, data is stored on data pages with a fixed size (for example, 4–16\,KB). A data page is a physical block of memory or storage.
+Leaf entries of the R--Tree live on these pages.
+When we insert points randomly and do not control page capacity (by clustering and optimizing beforehand), 
+several things go wrong. Pages in the leaves tend to be underfilled. When a leaf overflows, it splits, 
+and the two new pages are usually only about 50–70percent full. Over time the average fill level stays well below 
+the page limit, so we need more leaf pages to store the same data. Each leaf split can also push an 
+overflow to its parent, and that can continue up to the root.
+\newline
+\newline
+This leads to MBRs getting bigger and more overlap. Every split or enlargement forces parent rectangles to grow to cover new children. With random inserts they expand in many directions, depending on the dimension $d$, so overlap rises and the index must visit more nodes during a simple query.
+This also destroys the physical locality.
+Points that are close in the spatial sense are not written close together on a disk page, because they land on different pages created at different times. Even a small $k$NN query can then touch many pages, which means more random I/O. All of this leads to read/write overloads. More leaves mean more page reads per query, and more splits mean more page re-allocations with underfilled pages.
+\newline\newline
+In short, this all leads to half-empty pages, larger overlapping MBRs, taller trees, and scattered data on different pages, and that directly increases how many nodes and pages each query must visit.
