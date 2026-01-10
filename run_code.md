@@ -1,6 +1,6 @@
 ## Required
 * Python3 (`numpy`; `matplotlib`; `scikit-learn`; `pandas`; `tqdm`)
-* C++
+* C++ (g++...)
 * LibSpatialIndex (https://github.com/libspatialindex/libspatialindex)
 
 
@@ -9,14 +9,21 @@
 Make sure that you have all dependencies installed.
 
 You have to be able build a C++ project using the library `LibSpatialIndex` (https://libspatialindex.org/en/latest/#download).
+
 ---
 
 ### 2. Build the R-Tree binaries
 Unfortunately, no proper R-Tree solution for Python exists.
 Thats why I had to make use of a C++ implementation.
-You need to build two simple C++ files, to receive two binaries for your arch.
+You need to build two simple C++ files, to receive two binaries for your OS.
 
-...
+#### Build rtree_bboxesvariant
+Example for MacOS is located under `code/src/rtree_stuff/rtree_bboxesvariant/build_macos.sh`.
+
+#### Build rtree_pointsvariant
+Example for MacOS is located under `code/src/rtree_stuff/rtree_pointsvariant/build_macos.sh`.
+
+
 ---
 ### 3. code/src/multigen_cached.py
 Call the Python3 script `code/src/multigen_cached.py`.
